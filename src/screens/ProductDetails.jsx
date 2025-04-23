@@ -66,14 +66,14 @@ const ProductDetails = ({ navigation, route }) => {
                         overflow: 'hidden',
                         borderTopLeftRadius: hp('3%'),
                         borderTopRightRadius: hp('3%'),
-                        height: hp('64%'),
+                        height: hp('70%'),
                     }}
                 >
                     <ImageBackground
                         style={{
                             borderTopLeftRadius: hp('3%'),
                             borderTopRightRadius: hp('3%'),
-                            height: hp('64%'),
+                            height: hp('70%'),
                         }}
                         source={require('../assets/images/sheet_background.png')}
                         resizeMode="stretch"

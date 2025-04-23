@@ -54,10 +54,10 @@ const Signup = ({ navigation }) => {
             Message('Password is required!', 'Please enter your password.');
             return false;
         }
-        if (!validator.isStrongPassword(formState?.password)) {
-            Message('Password is weak!', 'Please enter a strong password that contains letters, numbers and a special character.');
-            return false;
-        }
+        // if (!validator.isStrongPassword(formState?.password)) {
+        //     Message('Password is weak!', 'Please enter a strong password that contains letters, numbers and a special character.');
+        //     return false;
+        // }
 
         if (validator.isEmpty(formState?.confirmPassword)) {
             Message('Confirm Password is required!', 'Please re-enter your password.');
@@ -76,7 +76,6 @@ const Signup = ({ navigation }) => {
 
     const handleSignup = () => {
         const checkValidation = isValid();
-        alert(checkValidation)
         if (checkValidation) {
             return dispatch(handleLoading(formState, navigation));
 

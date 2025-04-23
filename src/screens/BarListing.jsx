@@ -125,6 +125,7 @@ const BarListing = ({ navigation }) => {
                 <Badge
                     isHorixontal={true}
                     options={drinkQuality}
+                    onPress={() => console.log('data',)}
                 />
                 <Wrapper x={2}>
                     <H6 medium style={{ marginTop: wp('3%'), marginBottom: wp('3%') }}>Popularity</H6>
@@ -132,6 +133,7 @@ const BarListing = ({ navigation }) => {
                 <Badge
                     isHorixontal={true}
                     options={popularDrink}
+                    onPress={() =>{}}
                 />
                 <Wrapper x={2}>
                     <H6 medium style={{ marginTop: wp('3%'), marginBottom: wp('3%') }}>Ratings</H6>
@@ -139,6 +141,7 @@ const BarListing = ({ navigation }) => {
                 <Badge
                     isHorixontal={true}
                     options={RatingStarStanup}
+                    onPress={() =>{}}
                 />
                 <Wrapper x={2}>
                     <H6 medium style={{ marginTop: wp('3%'), marginBottom: wp('3%') }}>Nutritional Benefits</H6>
@@ -146,6 +149,7 @@ const BarListing = ({ navigation }) => {
                 <Badge
                     isHorixontal={false}
                     options={NutrinitionalBenfits}
+                    onPress={() =>{}}
                 />
                 <Br space={3} />
                 <Wrapper x={2}>
