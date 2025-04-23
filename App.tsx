@@ -1,131 +1,188 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react/no-unstable-nested-components */
+/* eslint-disable react/react-in-jsx-scope */
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NavigationProvider, useNavigation } from './src/utils/NavigationContext';
+import { Suspense, useEffect } from 'react';
+import Orientation from 'react-native-orientation-locker';
+import { NavigationContainer } from '@react-navigation/native';
+import { StatusBar, LogBox } from 'react-native';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import Splash from './src/screens/Splash';
+import Loading from './src/screens/Loading';
+import Home from './src/screens/Home';
+import Profile from './src/screens/Profile';
+import Terms from './src/screens/Terms';
+import PrivacyPolicy from './src/screens/PrivacyPolicy';
+import Support from './src/screens/Support';
+import Return from './src/screens/Return';
+import DiscountCoupons from './src/screens/DiscountCoupons';
+import Login from './src/screens/authentication/Login';
+import Signup from './src/screens/authentication/Signup';
+import ForgetPassword from './src/screens/authentication/ForgetPassword';
+import OTP from './src/screens/authentication/OTP';
+import ResetPassword from './src/screens/authentication/ResetPassword';
+import SetProfilePic from './src/screens/authentication/SetProfilePic';
+import SelectGender from './src/screens/authentication/SelectGender';
+import Bio from './src/screens/authentication/Bio';
+import AddLocation from './src/screens/authentication/AddLocation';
+import Map from './src/screens/authentication/Map';
+import Logout from './src/screens/Logout';
+import Final from './src/screens/authentication/Final';
+import BarListing from './src/screens/BarListing';
+import WishList from './src/screens/WishList';
+import MyOrdersList from './src/screens/MyOrdersList';
+import OrderPreparing from './src/screens/OrderPreparing';
+import FeedBack from './src/screens/FeedBack';
+import EditProfile from './src/screens/EditProfile';
+import ShopProfile from './src/screens/ShopProfile';
+import ProductDetails from './src/screens/ProductDetails';
+import MyCart from './src/screens/MyCart';
+import Checkout from './src/screens/CheckOut';
+import PaymentMethod from './src/screens/PaymentMethod';
+import AddCard from './src/screens/AddCard';
+import DeleteCard from './src/screens/DeleteCard';
+import Search from './src/screens/Search';
+import Notification from './src/screens/Notification';
+import { useDispatch } from 'react-redux';
+import { handleLoginPermissions } from './src/redux/Actions/AuthActions';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const Stack = createNativeStackNavigator();
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+function App() {
+  const { navigationRef } = useNavigation();
+  const dispatch = useDispatch();
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+  useEffect(() => {
+    dispatch(handleLoginPermissions());
+    LogBox.ignoreLogs(['Warning']);
+    Orientation.lockToPortrait();
+  }, []);
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const Sus = ({ component }) => {
+    return <Suspense fallback={<Loading />}>{component}</Suspense>;
   };
-
-  /*
-   * To keep the template simple and small we're adding padding to prevent view
-   * from rendering under the System UI.
-   * For bigger apps the reccomendation is to use `react-native-safe-area-context`:
-   * https://github.com/AppAndFlow/react-native-safe-area-context
-   *
-   * You can read more about it here:
-   * https://github.com/react-native-community/discussions-and-proposals/discussions/827
-   */
-  const safePadding = '5%';
-
   return (
-    <View style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        style={backgroundStyle}>
-        <View style={{paddingRight: safePadding}}>
-          <Header/>
-        </View>
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-            paddingHorizontal: safePadding,
-            paddingBottom: safePadding,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </View>
+    <>
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+      <NavigationContainer ref={navigationRef}>
+        <Stack.Navigator screenOptions={{
+          headerShown: false,
+        }}>
+          <Stack.Screen name="Splash" component={Splash} />
+          <Stack.Screen name="Login">
+            {props => <Sus component={<Login {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="Signup">
+            {props => <Sus component={<Signup {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="ForgetPassword">
+            {props => <Sus component={<ForgetPassword {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="OTP">
+            {props => <Sus component={<OTP {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="ResetPassword">
+            {props => <Sus component={<ResetPassword {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="SetProfilePic">
+            {props => <Sus component={<SetProfilePic {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="SelectGender">
+            {props => <Sus component={<SelectGender {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="Bio">
+            {props => <Sus component={<Bio {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="AddLocation">
+            {props => <Sus component={<AddLocation {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="Map">
+            {props => <Sus component={<Map {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="Final">
+            {props => <Sus component={<Final {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="Home">
+            {props => <Sus component={<Home {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="Profile">
+            {props => <Sus component={<Profile {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="Terms">
+            {props => <Sus component={<Terms {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="PrivacyPolicy">
+            {props => <Sus component={<PrivacyPolicy {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="Support">
+            {props => <Sus component={<Support {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="Return">
+            {props => <Sus component={<Return {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="DiscountCoupons">
+            {props => <Sus component={<DiscountCoupons {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="Logout">
+            {props => <Sus component={<Logout {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="BarListing">
+            {props => <Sus component={<BarListing {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="WishList">
+            {props => <Sus component={<WishList {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="MyOrdersList">
+            {props => <Sus component={<MyOrdersList {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="OrderPreparing">
+            {props => <Sus component={<OrderPreparing {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="Feedback">
+            {props => <Sus component={<FeedBack {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="EditProfile">
+            {props => <Sus component={<EditProfile {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="ShopProfile">
+            {props => <Sus component={<ShopProfile {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="ProductDetails">
+            {props => <Sus component={<ProductDetails {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="MyCart">
+            {props => <Sus component={<MyCart {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="Checkout">
+            {props => <Sus component={<Checkout {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="PaymentMethod">
+            {props => <Sus component={<PaymentMethod {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="AddCard">
+            {props => <Sus component={<AddCard {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="DeleteCard">
+            {props => <Sus component={<DeleteCard {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="Search">
+            {props => <Sus component={<Search {...props} />} />}
+          </Stack.Screen>
+          <Stack.Screen name="Notification">
+            {props => <Sus component={<Notification {...props} />} />}
+          </Stack.Screen>
+        </Stack.Navigator>
+      </NavigationContainer>
+    </>
   );
 }
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+export default function MobileApp() {
 
-export default App;
+  return (
+    <NavigationProvider>
+      <App />
+    </NavigationProvider>
+  );
+}
