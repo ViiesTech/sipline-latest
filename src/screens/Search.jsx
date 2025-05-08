@@ -1,20 +1,20 @@
-import { useEffect, useState } from "react";
-import { TouchableOpacity, View } from "react-native";
-import Header from "../components/Header";
-import Input from "../components/Input";
-import Background from "../utils/Background"
-import Wrapper from "../utils/Wrapper"
-import {  H5,  Pera } from "../utils/Text";
-import { Color } from "../utils/Colors";
+import { useEffect, useState } from 'react';
+import { TouchableOpacity, View } from 'react-native';
+import Header from '../components/Header';
+import Input from '../components/Input';
+import Background from '../utils/Background'
+import Wrapper from '../utils/Wrapper'
+import {  H5,  Pera } from '../utils/Text';
+import { Color } from '../utils/Colors';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
-import Br from "../components/Br";
-import { BagCross, RefreshCircle } from "iconsax-react-native";
-import Badge from "../components/Badge";
-import { useDispatch, useSelector } from "react-redux";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { handleHomeFilterData } from "../redux/Actions/BarActions";
-import { LoadingAnimation } from "../utils/Alert";
-import { searchDummyData } from "../utils/LocalData";
+import Br from '../components/Br';
+import { BagCross, RefreshCircle } from 'iconsax-react-native';
+import Badge from '../components/Badge';
+import { useDispatch, useSelector } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { handleHomeFilterData } from '../redux/Actions/BarActions';
+import { LoadingAnimation } from '../utils/Alert';
+import { searchDummyData } from '../utils/LocalData';
 
 
 const Search = ({ navigation }) => {
@@ -106,7 +106,7 @@ const Search = ({ navigation }) => {
                                         style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: hp('3%') }}>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: hp('2%') }} >
                                                 <RefreshCircle
-                                                    size={hp('2.5%')} color={Color("deleteSearch")} />
+                                                    size={hp('2.5%')} color={Color('deleteSearch')} />
                                             <TouchableOpacity onPress={()=> getPopularSearch(item)} >
                                             <H5 numberOfLines={1}>{item}</H5>
                                             </TouchableOpacity>

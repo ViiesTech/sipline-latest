@@ -3,7 +3,7 @@ export const USER_PERMISSION = 'USER_PERMISSION';
 
 const initial_state = {
     loadingState: false,
-    permission:null
+    permission:null,
 }
 
 const AuthReducers = (state = initial_state, action) => {
@@ -11,17 +11,17 @@ const AuthReducers = (state = initial_state, action) => {
         case LOADING_STATE:
             return {
                 ...state,
-                loadingState: action.payload
+                loadingState: action.payload,
             };
             case USER_PERMISSION:
                 return {
                     ...state,
-                    permission: action.payload
+                    permission: action.payload,
                 };
         default:
             return state;
     }
-}
+};
 
 
 export default AuthReducers;

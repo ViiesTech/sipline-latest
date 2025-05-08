@@ -13,98 +13,117 @@ import {
   HOME_DATA,
   UPDATE_CART_QUANTITY,
 } from '../Reducer/BarReducers';
-import { baseUrl, endPoints, errHandler } from '../../utils/Api_contents';
+import {baseUrl, endPoints, errHandler} from '../../utils/Api_contents';
 import axios from 'axios';
-import { encryption, getCardType, getServiceType, Message } from '../../utils/Alert';
-import { ToastAndroid } from 'react-native';
-
-
+import {
+  encryption,
+  getCardType,
+  getServiceType,
+  Message,
+} from '../../utils/Alert';
+import {ToastAndroid} from 'react-native';
 
 //All Actions And API call related to bars.
 //Home Data API
-export const handleHomeData = (isLoader) => {
-
-  return async (dispatch) => {
-    dispatch({ type: BAR_LOADER, payload: isLoader?.checkLoader ? false :  true });
+export const handleHomeData = isLoader => {
+  return async dispatch => {
+    dispatch({type: BAR_LOADER, payload: isLoader?.checkLoader ? false : true});
     try {
       const userToken = await AsyncStorage.getItem('signCredentials');
       const extractToken = JSON.parse(userToken);
       const res = await axios.get(
-        `${baseUrl}${endPoints.home}?city=${extractToken?.city?.toLowerCase()}`, {
-        headers: {
-          Authorization: `Bearer ${extractToken?.token}`,
+        `${baseUrl}${endPoints.home}?city=${extractToken?.city?.toLowerCase()}`,
+        {
+          headers: {
+            Authorization: `Bearer ${extractToken?.token}`,
+          },
+        },
+      );
+      dispatch({
+        type: HOME_DATA,
+        payload: {
+          category: res.data?.data[0],
+          currentBarData: res.data?.data[1],
+          trendSearches: res.data?.data[2],
         },
       });
-      dispatch({ type: HOME_DATA, payload: { 'category': res.data?.data[0], 'currentBarData': res.data?.data[1], 'trendSearches': res.data?.data[2] } });
-      dispatch({ type: BAR_LOADER, payload: false });
+      dispatch({type: BAR_LOADER, payload: false});
     } catch (error) {
       errHandler(error);
-      dispatch({ type: BAR_LOADER, payload: false });
+      dispatch({type: BAR_LOADER, payload: false});
     }
   };
 };
 
 //Home Filter Data API
 export const handleHomeFilterData = (search, navigation) => {
-  return async (dispatch) => {
-    dispatch({ type: BAR_LOADER, payload: true });
+  return async dispatch => {
+    dispatch({type: BAR_LOADER, payload: true});
     try {
       const userToken = await AsyncStorage.getItem('signCredentials');
       const extractToken = JSON.parse(userToken);
       const res = await axios.get(
-        `${baseUrl}${endPoints.homeSearch}?city=${extractToken?.city?.toLowerCase()}&&q=${search?.toLowerCase()}`, {
-        headers: {
-          Authorization: `Bearer ${extractToken?.token}`,
+        `${baseUrl}${
+          endPoints.homeSearch
+        }?city=${extractToken?.city?.toLowerCase()}&&q=${search?.toLowerCase()}`,
+        {
+          headers: {
+            Authorization: `Bearer ${extractToken?.token}`,
+          },
         },
-      });
-      dispatch({ type: HOME_DATA, payload: { 'currentBarData': res.data?.data } });
+      );
+      dispatch({type: HOME_DATA, payload: {currentBarData: res.data?.data}});
       navigation?.navigate('Home');
-      dispatch({ type: BAR_LOADER, payload: false });
+      dispatch({type: BAR_LOADER, payload: false});
     } catch (error) {
       errHandler(error);
-      dispatch({ type: BAR_LOADER, payload: false });
+      dispatch({type: BAR_LOADER, payload: false});
     }
   };
 };
-
-
-
 
 //Bar list API
-export const handleBarLists = (pageIndex) => {
-  return async (dispatch) => {
+export const handleBarLists = pageIndex => {
+  return async dispatch => {
     try {
       const userToken = await AsyncStorage.getItem('signCredentials');
       const extractToken = JSON.parse(userToken);
       const res = await axios.get(
-        `${baseUrl}${endPoints.barList}?city=${extractToken?.city?.toLowerCase()}&&page=${pageIndex}`, {
-        headers: {
-          Authorization: `Bearer ${extractToken?.token}`,
+        `${baseUrl}${
+          endPoints.barList
+        }?city=${extractToken?.city?.toLowerCase()}&&page=${pageIndex}`,
+        {
+          headers: {
+            Authorization: `Bearer ${extractToken?.token}`,
+          },
         },
+      );
+      dispatch({
+        type: BAR_LIST_DATA,
+        payload: {barData: res?.data?.data[0], lastPage: res?.data?.data[1]},
       });
-      dispatch({ type: BAR_LIST_DATA, payload: { 'barData': res?.data?.data[0], 'lastPage': res?.data?.data[1] } });
-
-
     } catch (error) {
       errHandler(error);
     }
   };
 };
 
-
 // Bar Profile Details
-export const handleBarProfileDetails = (bar_id) => {
-  return async (dispatch) => {
+export const handleBarProfileDetails = bar_id => {
+  return async dispatch => {
     // dispatch({ type: BAR_LOADER, payload: true });
     try {
       const userToken = await AsyncStorage.getItem('signCredentials');
       const extractToken = JSON.parse(userToken);
-      const res = await axios.get(`${baseUrl}${endPoints.selectedBarDetails}?id=${bar_id}`, {
-        headers: {
-          Authorization: `Bearer ${extractToken?.token}`,
+      const res = await axios.get(
+        `${baseUrl}${endPoints.selectedBarDetails}?id=${bar_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${extractToken?.token}`,
+          },
         },
-      });
-      dispatch({ type: BAR_PROFILE_DETAILS, payload: res.data?.data });
+      );
+      dispatch({type: BAR_PROFILE_DETAILS, payload: res.data?.data});
       // dispatch({ type: BAR_LOADER, payload: false});
     } catch (error) {
       errHandler(error);
@@ -114,28 +133,29 @@ export const handleBarProfileDetails = (bar_id) => {
 };
 
 // Bar product details
-export const handleProductDetails = (product_id) => {
-  return async (dispatch) => {
-
+export const handleProductDetails = product_id => {
+  return async dispatch => {
     try {
       const userToken = await AsyncStorage.getItem('signCredentials');
       const extractToken = JSON.parse(userToken);
-      const res = await axios.get(`${baseUrl}${endPoints.barProductDetails}?id=${product_id}`, {
-        headers: {
-          Authorization: `Bearer ${extractToken?.token}`,
+      const res = await axios.get(
+        `${baseUrl}${endPoints.barProductDetails}?id=${product_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${extractToken?.token}`,
+          },
         },
-      });
-      dispatch({ type: BAR_PRODUCT_DETAILS, payload: res.data?.data });
+      );
+      dispatch({type: BAR_PRODUCT_DETAILS, payload: res.data?.data});
     } catch (error) {
       errHandler(error);
     }
   };
 };
 
-
 // Add item to the cards
 export const handleCartItems = (item, productId, barId) => {
-  return (dispatch) => {
+  return dispatch => {
     dispatch({
       type: CART_ITEMS,
       payload: {
@@ -157,7 +177,7 @@ export const handleCartItems = (item, productId, barId) => {
 
 //Update items Quantity of selected card
 export const updateCartQuantity = (itemId, quantity) => {
-  return (dispatch) => {
+  return dispatch => {
     dispatch({
       type: UPDATE_CART_QUANTITY,
       payload: {
@@ -170,7 +190,7 @@ export const updateCartQuantity = (itemId, quantity) => {
 
 // get cards
 export const handleCards = () => {
-  return async (dispatch) => {
+  return async dispatch => {
     try {
       const userToken = await AsyncStorage.getItem('signCredentials');
       const extractToken = JSON.parse(userToken);
@@ -179,7 +199,7 @@ export const handleCards = () => {
           Authorization: `Bearer ${extractToken?.token}`,
         },
       });
-      dispatch({ type: GET_CARDS, payload: res.data?.data });
+      dispatch({type: GET_CARDS, payload: res.data?.data});
     } catch (error) {
       errHandler(error);
     }
@@ -188,23 +208,26 @@ export const handleCards = () => {
 
 // add users card
 export const handleAddCard = (card, setLoading, navigation) => {
-  return async (dispatch) => {
+  return async dispatch => {
     try {
       const type = await getCardType(card?.card_number);
       const service = await getServiceType(card?.card_number);
       const userToken = await AsyncStorage.getItem('signCredentials');
       const extractToken = JSON.parse(userToken);
-      const res = await axios.post(`${baseUrl}${endPoints.addCard}`, {
-        card_type: type,
-        card_service: service,
-        card_number: encryption(card?.card_number, extractToken?.token),
-        owner_name: encryption(card?.owner.toString(), extractToken?.token),
-        expiry: encryption(card?.expiry, extractToken?.token),
-        cvv: encryption(card?.cvv, extractToken?.token),
-      },
+      const res = await axios.post(
+        `${baseUrl}${endPoints.addCard}`,
         {
-          headers: { Authorization: `Bearer ${extractToken?.token}` },
-        });
+          card_type: type,
+          card_service: service,
+          card_number: encryption(card?.card_number, extractToken?.token),
+          owner_name: encryption(card?.owner.toString(), extractToken?.token),
+          expiry: encryption(card?.expiry, extractToken?.token),
+          cvv: encryption(card?.cvv, extractToken?.token),
+        },
+        {
+          headers: {Authorization: `Bearer ${extractToken?.token}`},
+        },
+      );
       Message(res.data?.title, res.data?.message);
       setLoading(false);
       dispatch(handleCards());
@@ -218,16 +241,18 @@ export const handleAddCard = (card, setLoading, navigation) => {
 
 //delete Card
 export const handleDeleteCard = (id, setLoading, navigation) => {
-  return async (dispatch) => {
+  return async dispatch => {
     try {
       const userToken = await AsyncStorage.getItem('signCredentials');
       const extractToken = JSON.parse(userToken);
       const res = await axios.delete(
-        `${baseUrl}${endPoints.deleteCard}?id=${id}`, {
-        headers: {
-          Authorization: `Bearer ${extractToken?.token}`,
+        `${baseUrl}${endPoints.deleteCard}?id=${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${extractToken?.token}`,
+          },
         },
-      });
+      );
       setLoading(false);
       Message(res.data?.title, res.data?.message);
       dispatch(handleCards());
@@ -239,10 +264,9 @@ export const handleDeleteCard = (id, setLoading, navigation) => {
   };
 };
 
-
 // Get Discounts and App data
 export const handleTotalAmount = () => {
-  return async (dispatch) => {
+  return async dispatch => {
     try {
       const userToken = await AsyncStorage.getItem('signCredentials');
       const extractToken = JSON.parse(userToken);
@@ -251,54 +275,70 @@ export const handleTotalAmount = () => {
           Authorization: `Bearer ${extractToken?.token}`,
         },
       });
-      dispatch({ type: APP_DATA, payload: res?.data?.data });
+      dispatch({type: APP_DATA, payload: res?.data?.data});
     } catch (error) {
       errHandler(error);
     }
   };
 };
-
 
 // Get Coupons of users
 export const handleCoupons = (couponCode, barId) => {
-  return async (dispatch) => {
+  return async dispatch => {
     try {
       const userToken = await AsyncStorage.getItem('signCredentials');
       const extractToken = JSON.parse(userToken);
-      const res = await axios.get(`${baseUrl}${endPoints.applyCouponCode}?coupon_code=${couponCode}&&bar_id=${barId}`, {
-        headers: {
-          Authorization: `Bearer ${extractToken?.token}`,
+      const res = await axios.get(
+        `${baseUrl}${endPoints.applyCouponCode}?coupon_code=${couponCode}&&bar_id=${barId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${extractToken?.token}`,
+          },
         },
-      });
+      );
 
       ToastAndroid.show(res.data?.message, ToastAndroid.SHORT);
-      dispatch({ type: APPLY_COUPON_CODE, payload: res?.data?.data });
+      dispatch({type: APPLY_COUPON_CODE, payload: res?.data?.data});
     } catch (error) {
       errHandler(error);
     }
   };
 };
 
-
 // Create Order for
-export const handleCreateOrder = (coupon, couponId, barId, products, cardId, subTotal, grandTotal, salesTax, platformCharges, setLoading, navigation) => {
-  return async (dispatch) => {
+export const handleCreateOrder = (
+  coupon,
+  couponId,
+  barId,
+  products,
+  cardId,
+  subTotal,
+  grandTotal,
+  salesTax,
+  platformCharges,
+  setLoading,
+  navigation,
+) => {
+  return async dispatch => {
     try {
       const userToken = await AsyncStorage.getItem('signCredentials');
       const extractToken = JSON.parse(userToken);
-      const res = await axios.post(`${baseUrl}${endPoints.createOrder}`, {
-        'coupon_id': couponId || null,
-        'bar_id': barId,
-        'products': JSON.stringify(products),
-        'card_id': cardId,
-        'sub_total': subTotal,
-        'grand_total': grandTotal,
-        'sales_tax': salesTax,
-        'platform_charges': platformCharges,
-      },
+      const res = await axios.post(
+        `${baseUrl}${endPoints.createOrder}`,
         {
-          headers: { Authorization: `Bearer ${extractToken?.token}` },
-        });
+          coupon_id: couponId || null,
+          bar_id: barId,
+          products: JSON.stringify(products),
+          card_id: cardId,
+          sub_total: subTotal,
+          grand_total: grandTotal,
+          sales_tax: salesTax,
+          platform_charges: platformCharges,
+        },
+        {
+          headers: {Authorization: `Bearer ${extractToken?.token}`},
+        },
+      );
       Message(res.data?.title, res.data?.message);
       setLoading(false);
       const orderCreatedData = {
@@ -319,12 +359,12 @@ export const handleCreateOrder = (coupon, couponId, barId, products, cardId, sub
   };
 };
 
-
 // Helping Resources for Different usage to make order
 export const handleHelperGame = (barProfileId, cardId) => {
-  return (dispatch) => {
+  return dispatch => {
     dispatch({
-      type: HELPER, payload: {
+      type: HELPER,
+      payload: {
         barProfileId: barProfileId || null,
         selectedCardId: cardId || null,
       },
@@ -332,20 +372,22 @@ export const handleHelperGame = (barProfileId, cardId) => {
   };
 };
 
-
 // Select the card fot payments
 export const handleActiveCard = (cardId, navigation) => {
-  return async (dispatch) => {
+  return async dispatch => {
     try {
-      dispatch({ type: ACTIVE_CARD, payload: cardId });
+      dispatch({type: ACTIVE_CARD, payload: cardId});
       const userToken = await AsyncStorage.getItem('signCredentials');
       const extractToken = JSON.parse(userToken);
-      const res = await axios.put(`${baseUrl}${endPoints.activeCard}`, {
-        id: cardId,
-      },
-      {
-        headers: { Authorization: `Bearer ${extractToken?.token}` },
-      });
+      const res = await axios.put(
+        `${baseUrl}${endPoints.activeCard}`,
+        {
+          id: cardId,
+        },
+        {
+          headers: {Authorization: `Bearer ${extractToken?.token}`},
+        },
+      );
       ToastAndroid(res.data?.title, ToastAndroid.SHORT);
     } catch (error) {
       errHandler(error);
@@ -353,19 +395,21 @@ export const handleActiveCard = (cardId, navigation) => {
   };
 };
 
-
 // Remove or Add  oN Wish Lists
-export const handleAddRemoveWishBar = (barId) => {
-  return async (dispatch) => {
+export const handleAddRemoveWishBar = barId => {
+  return async dispatch => {
     try {
       const userToken = await AsyncStorage.getItem('signCredentials');
       const extractToken = JSON.parse(userToken);
-      await axios.post(`${baseUrl}${endPoints.addRemoveWishBar}`, {
-        bar_id: barId,
-      },
+      await axios.post(
+        `${baseUrl}${endPoints.addRemoveWishBar}`,
         {
-          headers: { Authorization: `Bearer ${extractToken?.token}` },
-        });
+          bar_id: barId,
+        },
+        {
+          headers: {Authorization: `Bearer ${extractToken?.token}`},
+        },
+      );
     } catch (error) {
       errHandler(error);
     }
