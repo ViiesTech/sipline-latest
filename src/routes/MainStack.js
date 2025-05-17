@@ -24,6 +24,7 @@ import AddCard from '../screens/AddCard';
 import DeleteCard from '../screens/DeleteCard';
 import Search from '../screens/Search';
 import Notification from '../screens/Notification';
+import Final from '../screens/authentication/Final';
 
 const Stack = createNativeStackNavigator();
 const Sus = ({component}) => {
@@ -32,6 +33,9 @@ const Sus = ({component}) => {
 export function MainStack() {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Screen name="Final">
+        {props => <Sus component={<Final {...props} />} />}
+      </Stack.Screen>
       <Stack.Screen name="Home">
         {props => <Sus component={<Home {...props} />} />}
       </Stack.Screen>

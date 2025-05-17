@@ -4,12 +4,6 @@ import Signup from '../screens/authentication/Signup';
 import ForgetPassword from '../screens/authentication/ForgetPassword';
 import OTP from '../screens/authentication/OTP';
 import ResetPassword from '../screens/authentication/ResetPassword';
-import SetProfilePic from '../screens/authentication/SetProfilePic';
-import SelectGender from '../screens/authentication/SelectGender';
-import Bio from '../screens/authentication/Bio';
-import AddLocation from '../screens/authentication/AddLocation';
-import Map from '../screens/authentication/Map';
-import Final from '../screens/authentication/Final';
 import {Suspense} from 'react';
 import Loading from '../screens/Loading';
 import Splash from '../screens/Splash';
@@ -36,24 +30,6 @@ export function AuthStack() {
       </Stack.Screen>
       <Stack.Screen name="ResetPassword">
         {props => <Sus component={<ResetPassword {...props} />} />}
-      </Stack.Screen>
-      <Stack.Screen name="SetProfilePic">
-        {props => <Sus component={<SetProfilePic {...props} />} />}
-      </Stack.Screen>
-      <Stack.Screen name="SelectGender">
-        {props => <Sus component={<SelectGender {...props} />} />}
-      </Stack.Screen>
-      <Stack.Screen name="Bio">
-        {props => <Sus component={<Bio {...props} />} />}
-      </Stack.Screen>
-      <Stack.Screen name="AddLocation">
-        {props => <Sus component={<AddLocation {...props} />} />}
-      </Stack.Screen>
-      <Stack.Screen name="Map">
-        {props => <Sus component={<Map {...props} />} />}
-      </Stack.Screen>
-      <Stack.Screen name="Final">
-        {props => <Sus component={<Final {...props} />} />}
       </Stack.Screen>
     </Stack.Navigator>
   );

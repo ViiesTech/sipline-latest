@@ -6,7 +6,7 @@ import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { H6 } from '../utils/Text';
 import { Color } from '../utils/Colors';
 
-const Btn = ({ children, style, onPress, loading, disabled }: { disabled?: any, children: any, style?: any, onPress?: any, loading?: any }) => {
+const Btn = ({ children,loaderSize, style, onPress, loading, disabled }: { disabled?: any, children: any, style?: any, onPress?: any,loaderSize?:string, loading?: any }) => {
     const whenClicked = () => {
         if (onPress) {
             onPress();
@@ -27,7 +27,7 @@ const Btn = ({ children, style, onPress, loading, disabled }: { disabled?: any, 
             {
                 loading
                     ?
-                    <ActivityIndicator size={'large'} color={Color('headerIcon')} />
+                    <ActivityIndicator size={loaderSize || 'large'} color={Color('headerIcon')} />
                     :
                     <H6 style={{ textAlign: 'center' }} color={Color('headerIcon')}>{children}</H6>
             }

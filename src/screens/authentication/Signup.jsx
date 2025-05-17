@@ -86,7 +86,7 @@ const Signup = ({navigation}) => {
     const checkValidation = isValid();
     if (checkValidation) {
       const {email, phone, password} = formState;
-      console.log(email, phone, password);
+      console.log(email, phone, password,"gfhg");
       await RegisterUser(email, phone, password, navigation,dispatch);
       //   return dispatch(handleLoading(formState, navigation));
     }

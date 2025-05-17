@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react/react-in-jsx-scope */
+import 'react-native-get-random-values';
 import { NavigationProvider, useNavigation } from './src/utils/NavigationContext';
 import { useEffect } from 'react';
 import Orientation from 'react-native-orientation-locker';
@@ -12,6 +13,7 @@ import Toast from 'react-native-toast-message';
 import { Routes } from './src/routes/Routes';
 import { persistor, store } from './src/reduxNew/Store';
 import { PersistGate } from 'redux-persist/integration/react';
+
 
 function App() {
   const { navigationRef } = useNavigation();

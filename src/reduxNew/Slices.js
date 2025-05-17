@@ -6,6 +6,9 @@ import {ShowToast} from '../GlobalFunctions/ShowToast';
 const initialState = {
   userData: {},
   token: '',
+  adminId: '',
+  profileCreated: false,
+  cartProducts: [],
   isLoading: false,
   error: null,
 };
@@ -42,6 +45,7 @@ const authSlice = createSlice({
     clearToken: state => {
       state.token = '';
       state.userData = {};
+      state.profileCreated = false;
     },
     setToken: (state, action) => {
       state.token = action.payload;
@@ -51,6 +55,25 @@ const authSlice = createSlice({
     },
     setUserData: (state, action) => {
       state.userData = action.payload;
+    },
+    setCartProducts: (state, action) => {
+      state.cartProducts = action.payload;
+    },
+
+    setTokenAndData: (state, action) => {
+      state.token = action.payload.token;
+      state.userData = action.payload.userData;
+      state.profileCreated = action.payload.profileCreated;
+    },
+    setClearProducts: (state, action) => {
+      state.cartProducts = [];
+      state.adminId = '';
+    },
+    setProfileCreated: (state, action) => {
+      state.profileCreated = action.payload;
+    },
+    setAdminId: (state, action) => {
+      state.adminId = action.payload;
     },
   },
   extraReducers: builder => {
@@ -63,6 +86,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.token = action.payload.accessToken;
         state.userData = action.payload.data;
+        state.profileCreated = action.payload.data.profileCreted;
       })
       .addCase(UserLogin.rejected, (state, action) => {
         state.isLoading = false;
@@ -71,6 +95,15 @@ const authSlice = createSlice({
   },
 });
 
-export const {clearToken, setUserData, setToken, setLoading} =
-  authSlice.actions;
+export const {
+  clearToken,
+  setUserData,
+  setToken,
+  setTokenAndData,
+  setProfileCreated,
+  setLoading,
+  setClearProducts,
+  setAdminId,
+  setCartProducts,
+} = authSlice.actions;
 export default authSlice.reducer;
