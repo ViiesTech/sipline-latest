@@ -27,12 +27,16 @@ import {baseUrl, imageUrl} from '../utils/Api_contents';
 import {handleAddOrRemoveWishList} from '../redux/Actions/UsersActions';
 import {dummyBarProfile} from '../utils/LocalData';
 import mapImg from '../assets/images/Mask.png';
-import {getAdminProducts} from '../GlobalFunctions/Apis';
+import {
+  addToFavourites,
+  getAdminProducts,
+  getShopById,
+} from '../GlobalFunctions/Apis';
 import {responsiveHeight} from '../utils/Responsive';
 
 const ShopProfile = ({navigation, route}) => {
   const dispatch = useDispatch();
-  const barProfile = useSelector(state => state?.bars);
+  const {cartProducts, userData} = useSelector(state => state?.user);
   const [barDetails, setBarDetails] = useState(null);
   const [barProducts, setBarProducts] = useState([]);
   console.log('bar products', barProducts);
@@ -41,14 +45,15 @@ const ShopProfile = ({navigation, route}) => {
   const [isAddToWish, setIsAddToWish] = useState(barDetails?.id);
   const [tab, setTab] = useState('');
   const {data} = route?.params;
+  const [shopData, setShopData] = useState();
   const today = new Date().getDay();
   const todayData = data.workingDays[today - 1];
-  const [latLng, setLatLng] = useState({
-    latitude: data.location.coordinates[1],
-    longitude: data.location.coordinates[0],
-  });
+  const [latLng, setLatLng] = useState(null);
+  const [favourites, setFavourites] = useState(false);
+  const [isFavourite, setIsFavourite] = useState();
+
   console.log('today', todayData?.isActive);
-  console.log('data', data);
+  console.log('shopData', shopData);
   useEffect(() => {
     // dispatch(handleBarProfileDetails(route?.params?.id));
   }, []);
@@ -84,7 +89,31 @@ const ShopProfile = ({navigation, route}) => {
   useEffect(() => {
     setIsAddToWish(barDetails?.id);
   }, [barDetails]);
-
+  const getShopDetailsById = async () => {
+    try {
+      const response = await getShopById(data._id);
+      setShopData(response.data);
+      // Safely extract lat/lng
+      const coords = response.data?.location?.coordinates;
+      if (coords && coords.length === 2) {
+        setLatLng({
+          latitude: coords[1],
+          longitude: coords[0],
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching shop details:', error);
+    }
+  };
+  useEffect(() => {
+    getShopDetailsById();
+  }, []);
+  useEffect(() => {
+    if (shopData?.favouriteBy && userData?._id) {
+      const isFav = shopData.favouriteBy.includes(userData._id);
+      setIsFavourite(isFav);
+    }
+  }, [shopData, userData]);
   const Cart = () => {
     return (
       <TouchableOpacity
@@ -97,13 +126,19 @@ const ShopProfile = ({navigation, route}) => {
           <H6 bold>Cart</H6>
         </View>
         <View style={styles.itemInCart}>
-          {/* <H6
-            color={Color('headerIcon')}>{`${barProfile.cartItems?.length}`}</H6> */}
+          <H6 color={Color('headerIcon')}>{`${cartProducts?.length}`}</H6>
         </View>
       </TouchableOpacity>
     );
   };
 
+  const handleAddToFavourites = async () => {
+    console.log('userData', userData._id);
+    console.log('shopId', data._id);
+    const response = await addToFavourites(userData._id, data._id);
+    setIsFavourite(!isFavourite);
+    console.log('addtofavourites', response);
+  };
   return (
     <>
       <Background>
@@ -121,13 +156,14 @@ const ShopProfile = ({navigation, route}) => {
                 navigation={navigation}>
                 <TouchableOpacity
                   onPress={() => {
-                    setIsAddToWish(!isAddToWish);
-                    dispatch(handleAddOrRemoveWishList(barDetails?.bar_id));
+                    handleAddToFavourites();
+                    // setIsAddToWish(!isAddToWish);
+                    // dispatch(handleAddOrRemoveWishList(barDetails?.bar_id));
                   }}>
                   <Heart
                     size={hp('3.5%')}
                     color={Color('headerIconBg')}
-                    variant={isAddToWish ? 'Bold' : 'Outline'}
+                    variant={isFavourite ? 'Bold' : 'Outline'}
                   />
                 </TouchableOpacity>
               </Header>
@@ -137,7 +173,7 @@ const ShopProfile = ({navigation, route}) => {
                 // source={{
                 //     uri:barDetails !== null ? `${baseUrl}/vendor/bars/${barDetails?.bar_image}` :  'https://i.imghippo.com/files/IBOmT1729190109.webp',
                 // }}
-                source={{uri: `${imageUrl}${data.shopImage}`}}
+                source={{uri: `${imageUrl}${shopData?.shopImage}`}}
                 style={{width: wp('94%'), height: hp('20%'), borderRadius: 4}}
               />
               <View
@@ -148,7 +184,9 @@ const ShopProfile = ({navigation, route}) => {
                   marginTop: hp('2%'),
                   flexWrap: 'wrap',
                 }}>
-                <H3 bold>{data.barName ? data.barName : 'Anonymous'}</H3>
+                <H3 bold>
+                  {shopData?.barName ? shopData?.barName : 'Loading...'}
+                </H3>
                 <View
                   style={{
                     flexDirection: 'row',
@@ -162,7 +200,7 @@ const ShopProfile = ({navigation, route}) => {
                     variant="Bold"
                   />
                   <Pera medium>{`${
-                    data?.avgRating != null ? data?.avgRating : 0
+                    shopData?.avgRating != null ? shopData?.avgRating : 0
                   } | Rating`}</Pera>
                 </View>
               </View>
@@ -186,24 +224,21 @@ const ShopProfile = ({navigation, route}) => {
                     borderRadius: responsiveHeight(2),
                     overflow: 'hidden', // very important
                   }}>
-                  <MapView
-                    mapType="terrain"
-                    style={{
-                      flex: 1, // Better than height/width
-                    }}
-                    initialRegion={{
-                      latitude: latLng?.latitude,
-                      longitude: latLng?.longitude,
-                      latitudeDelta: 0.1,
-                      longitudeDelta: 0.1,
-                    }}>
-                    <Marker
-                      coordinate={{
-                        latitude: latLng?.latitude,
-                        longitude: latLng?.longitude,
-                      }}
-                    />
-                  </MapView>
+                  {latLng ? (
+                    <MapView
+                      mapType="terrain"
+                      style={{flex: 1}}
+                      initialRegion={{
+                        latitude: latLng.latitude,
+                        longitude: latLng.longitude,
+                        latitudeDelta: 0.1,
+                        longitudeDelta: 0.1,
+                      }}>
+                      <Marker coordinate={latLng} />
+                    </MapView>
+                  ) : (
+                    <Text>Loading Map...</Text> // or show a spinner
+                  )}
                 </View>
               </View>
               <Br space={2} />
@@ -222,7 +257,7 @@ const ShopProfile = ({navigation, route}) => {
                   medium
                   color={Color(
                     'text',
-                  )}>{` Average Cooking time ${data?.cookingTime}`}</Pera>
+                  )}>{` Average Cooking time ${shopData?.cookingTime}`}</Pera>
               </View>
               <Br space={2} />
               <View
@@ -290,7 +325,7 @@ const ShopProfile = ({navigation, route}) => {
                       //       .includes(tab),
                       //   )
                       .map((item, index) => {
-                        console.log('item',item)
+                        console.log('item===>>>', item);
                         // const imagPath = item.product_images?.replace(/[\[\]']+/g, '');
                         return (
                           <View style={{width: '48%', flexDirection: 'row'}}>
@@ -317,7 +352,9 @@ const ShopProfile = ({navigation, route}) => {
                               //   })
                               // }
                               onPress={() =>
-                                navigation.navigate('ProductDetails', {item})
+                                navigation.navigate('ProductDetails', {
+                                  item: {...item, shopId: data._id},
+                                })
                               }
                             />
                           </View>

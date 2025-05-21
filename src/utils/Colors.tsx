@@ -33,7 +33,8 @@ const lightColorScheme: Colors = {
     starClr:'#FFD700',
     orderPlacedTick: '#00BA00',
     searchBorder:'#041E5E',
-    deleteSearch:"#292929"
+    deleteSearch:"#292929",
+    red:'red',
 
 };
 

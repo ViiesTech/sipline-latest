@@ -14,18 +14,20 @@ import {handleOrderHistory} from '../redux/Actions/UsersActions';
 import {baseUrl, imageUrl} from '../utils/Api_contents';
 import {LoadingAnimation, NoResultFound} from '../utils/Alert';
 import {orderHistoryDummyData} from '../utils/LocalData';
-import {getOrderHistory} from '../GlobalFunctions/Apis';
+import {getAllOrdersByStatus, getOrderHistory} from '../GlobalFunctions/Apis';
 
 const MyOrdersList = ({navigation}) => {
   const dispatch = useDispatch();
   const orderHistory = useSelector(state => state?.inApp);
-  const {userData} = useSelector(state => state?.user);
+  const {userData, isLoading} = useSelector(state => state?.user);
+  console.log(userData._id);
   //   const data = !orderHistory?.allOrderHistory?.length
   //     ? orderHistoryDummyData
   //     : orderHistory;
   const [data, setData] = useState([]);
-  const tabData = ['New', 'Preparing', 'Picked', 'Delivered', 'Rejected'];
+  const tabData = ['Pending', 'Preparing', 'Picked', 'Delivered', 'Rejected'];
   const [selectedValue, setSelectedValue] = useState(tabData[0].toString());
+  // const [data, setData] = useState([]);
   console.log('userData', userData._id);
   console.log('selectedValue', selectedValue);
   const getSelectedTabData = value => {
@@ -34,7 +36,13 @@ const MyOrdersList = ({navigation}) => {
   };
 
   const renderOrderHistory = async () => {
-    const response = await getOrderHistory(userData._id, selectedValue);
+    console.log('selectedvalue', userData._id);
+    const response = await getAllOrdersByStatus(
+      userData._id,
+      selectedValue,
+      dispatch,
+    );
+    setData(response.data);
     console.log('response', response);
   };
   useEffect(() => {
@@ -66,28 +74,31 @@ const MyOrdersList = ({navigation}) => {
       </View>
       <HorizontalLine />
       <Br space={3} />
-      {orderHistory?.loadingState ? (
+      {isLoading ? (
         <LoadingAnimation />
       ) : (
         <Wrapper>
-          {data?.allOrderHistory?.length === 0 ? (
+          {data?.length === 0 ? (
             <NoResultFound />
           ) : (
             <>
               {data?.map((item, index) => {
                 // const check = index % 2 === 0 ? true : false;
+                console.log('testing',item);
+                const shortOrderId = item?._id?.slice(-5);
                 return (
                   <OrderCard
                     key={index}
                     // imageUrl={`${baseUrl}/vendor/bars/${item?.tbl_bar?.bar_image}`}
-                    imageUrl={{uri: `${imageUrl}${item.productImage}`}}
-                    itemId={item?.order_id}
+                    imageUrl={`${imageUrl}${item.product.productImages[0]}`}
+                    itemId={item?._id}
+                    shortId={shortOrderId}
                     itemName={item?.bar_name}
-                    itemPrice={item?.grand_total}
+                    itemPrice={item?.grandTotal}
                     onPress={() =>
                       navigation.navigate('OrderPreparing', {
                         // isPicked: check,
-                        data: item,
+                        data: {...item,shortOrderId},
                       })
                     }
                   />

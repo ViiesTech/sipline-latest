@@ -25,9 +25,10 @@ import {
   updateCartQuantity,
 } from '../redux/Actions/BarActions';
 import {myCartDummyData} from '../utils/LocalData';
-import {setCartProducts} from '../reduxNew/Slices';
+import {setCartProducts, setClearProducts} from '../reduxNew/Slices';
 import {ShowToast} from '../GlobalFunctions/ShowToast';
 import {applyCouponCode} from '../GlobalFunctions/Apis';
+import {responsiveFontSize, responsiveHeight} from '../utils/Responsive';
 
 const MyCart = ({navigation, route}) => {
   const dispatch = useDispatch();
@@ -42,6 +43,7 @@ const MyCart = ({navigation, route}) => {
   const [grandTotal2, setGrandTotal2] = useState(0);
 
   console.log('grandTotal', grandTotal);
+  console.log('grandTotal2', grandTotal2);
   //   const subTotalAmount = cartData?.cartItems?.reduce((acc, item) => {
   //     return acc + item.quantity * item.after_price;
   //   }, 0);
@@ -99,23 +101,26 @@ const MyCart = ({navigation, route}) => {
   useEffect(() => {
     if (cartProducts.length > 0) {
       const total = cartProducts.reduce((acc, item) => {
-        const quantity = item.quantity || 1;
-        return acc + item.price * quantity;
+        const price = Number(item.price) || 0;
+        const quantity = Number(item.quantity) || 1;
+        return acc + price * quantity;
       }, 0);
 
       setSubTotal(total);
 
-      const discountAmount = (total * couponDiscount) / 100;
+      const discountPercent = Number(couponDiscount) || 0;
+      const discountAmount = (total * discountPercent) / 100;
       const afterDiscount = total - discountAmount;
 
-      setGrandTotal(afterDiscount); // set this normally for display
+      setGrandTotal(afterDiscount);
 
-      const salesTax = afterDiscount * 0.015; // 1.5% sales tax
-      const performanceCharge = 0.99; // fixed charge
+      const salesTax = afterDiscount * 0.015;
+      const performanceCharge = 0.99;
 
       const finalAmount = afterDiscount + salesTax + performanceCharge;
-      setGrandTotal2(finalAmount); // updated total with charges
-      console.log('grandtotal2', grandTotal2);
+      setGrandTotal2(finalAmount);
+
+      console.log('grandTotal2:', finalAmount);
     } else {
       setSubTotal(0);
       setGrandTotal(0);
@@ -125,7 +130,10 @@ const MyCart = ({navigation, route}) => {
 
   const handleIncrease = productId => {
     const updatedCart = cartProducts.map(item => {
+        console.log('stockquantity',item);
+
       if (item._id === productId && item.quantity < item.StockQuantity) {
+
         return {
           ...item,
           quantity: item.quantity + 1,
@@ -159,81 +167,114 @@ const MyCart = ({navigation, route}) => {
         <Br space={5} />
         <View>
           {cartProducts?.length === 0 ? (
-            <Pera style={{textAlign: 'center'}}>Cart is Empty!</Pera>
+            <View
+              style={{
+                height: responsiveHeight(70),
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <Pera
+                extraBold
+                style={{
+                  textAlign: 'center',
+                  fontSize: responsiveFontSize(3),
+                  fontWeight: '700',
+                }}>
+                Cart is Empty!
+              </Pera>
+            </View>
           ) : (
-            <>
-              {cartProducts?.map((item, index) => {
-                // const imagPath =
-                //   item.productImages.length === 0
-                //     ? item?.productImages
-                //     : item.productImages[0].replace(/[\[\]']+/g, '');
-                return (
-                  <CartComponent
-                    countNumber={item?.quantity}
-                    onAdd={() => handleIncrease(item._id)}
-                    onDetect={() => handleDecrease(item._id)}
-                    key={index}
-                    ImgUrl={`${imageUrl}${item.productImages[0]}`}
-                    itemPrice={item?.price}
-                    itemTitle={item?.name}
-                  />
-                );
-              })}
-            </>
+            <View>
+              <>
+                {cartProducts?.map((item, index) => {
+                  // const imagPath =
+                  //   item.productImages.length === 0
+                  //     ? item?.productImages
+                  //     : item.productImages[0].replace(/[\[\]']+/g, '');
+                  return (
+                    <CartComponent
+                      id={item?._id}
+                      countNumber={item?.quantity}
+                      onAdd={() => handleIncrease(item._id)}
+                      onDetect={() => handleDecrease(item._id)}
+                      key={index}
+                      ImgUrl={`${imageUrl}${item.productImages[0]}`}
+                      itemPrice={item?.price}
+                      itemTitle={item?.name}
+                    />
+                  );
+                })}
+              </>
+              {cartProducts.length > 1 && (
+                <View style={{alignItems: 'flex-end'}}>
+                  <Btn
+                    disabled={cartProducts.length === 0 || grandTotal === 0}
+                    onPress={() => dispatch(setClearProducts())}
+                    style={{width: wp('45%')}}>
+                    Clear Products
+                  </Btn>
+                </View>
+              )}
+
+              <H5 bold>Coupon Code</H5>
+              <Br space={2} />
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: hp('2%'),
+                }}>
+                <Input
+                  placeholder={'Place coupons here...'}
+                  styling={{borderRadius: hp('1%'), width: wp('65%')}}
+                  onChangeText={text => setCode(text)}
+                />
+                <Btn loading={isLoading} loaderSize="small" onPress={applyCode}>
+                  {' '}
+                  Apply
+                </Btn>
+              </View>
+              <Br space={2} />
+              <H5 bold>Order Summary</H5>
+              <TotalCard
+                beforeTotal={[
+                  {
+                    label: 'Sub Total',
+                    value: `$${parseFloat(subTotal).toFixed(2)}/-`,
+                  },
+                  {label: '', value: '', line: true},
+                  {
+                    label: 'Applied Coupon',
+                    value: couponDiscount ? `${couponDiscount}%` : '/-',
+                  },
+                  {label: '', value: '', line: true},
+                  {
+                    label: 'Grand Total',
+                    value: grandTotal
+                      ? `$${parseFloat(grandTotal).toFixed(2)}/-`
+                      : '/-',
+                  },
+                ]}
+              />
+              <Br space={3} />
+              <View style={{alignItems: 'flex-end'}}>
+                <Btn
+                  disabled={cartProducts.length === 0 || grandTotal === 0}
+                  onPress={() => {
+                    navigation.navigate('Checkout', {
+                      barId: 'route?.params?.barId',
+                      couponId: 'cartData?.getCoupons?.id',
+                      grandTotal: grandTotal2,
+                      coupon: couponDiscount,
+                      subTotalAmount: subTotal,
+                    });
+                  }}
+                  style={{width: wp('45%')}}>
+                  Checkout
+                </Btn>
+              </View>
+            </View>
           )}
-        </View>
-        <H5 bold>Coupon Code</H5>
-        <Br space={2} />
-        <View
-          style={{flexDirection: 'row', alignItems: 'center', gap: hp('2%')}}>
-          <Input
-            placeholder={'Place coupons here...'}
-            styling={{borderRadius: hp('1%'), width: wp('65%')}}
-            onChangeText={text => setCode(text)}
-          />
-          <Btn loading={isLoading} loaderSize="small" onPress={applyCode}>
-            {' '}
-            Apply
-          </Btn>
-        </View>
-        <Br space={2} />
-        <H5 bold>Order Summary</H5>
-        <TotalCard
-          beforeTotal={[
-            {
-              label: 'Sub Total',
-              value: `$${parseFloat(subTotal).toFixed(2)}/-`,
-            },
-            {label: '', value: '', line: true},
-            {
-              label: 'Applied Coupon',
-              value: couponDiscount ? `${couponDiscount}%` : '/-',
-            },
-            {label: '', value: '', line: true},
-            {
-              label: 'Grand Total',
-              value: grandTotal
-                ? `$${parseFloat(grandTotal).toFixed(2)}/-`
-                : '/-',
-            },
-          ]}
-        />
-        <Br space={3} />
-        <View style={{alignItems: 'flex-end'}}>
-          <Btn
-            disabled={cartProducts.length === 0 || grandTotal === 0}
-            onPress={() => {
-              navigation.navigate('Checkout', {
-                barId: 'route?.params?.barId',
-                couponId: 'cartData?.getCoupons?.id',
-                grandTotal: grandTotal2,
-                coupon: couponDiscount,
-                subTotalAmount: subTotal,
-              });
-            }}
-            style={{width: wp('45%')}}>
-            Checkout
-          </Btn>
         </View>
       </Wrapper>
       <Br space={5} />

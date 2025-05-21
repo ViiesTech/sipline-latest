@@ -69,6 +69,11 @@ const authSlice = createSlice({
       state.cartProducts = [];
       state.adminId = '';
     },
+    clearProductById: (state, action) => {
+      state.cartProducts = state.cartProducts.filter(
+        item => item._id !== action.payload,
+      );
+    },
     setProfileCreated: (state, action) => {
       state.profileCreated = action.payload;
     },
@@ -105,5 +110,6 @@ export const {
   setClearProducts,
   setAdminId,
   setCartProducts,
+  clearProductById,
 } = authSlice.actions;
 export default authSlice.reducer;

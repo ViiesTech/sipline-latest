@@ -51,7 +51,7 @@ const Home = ({navigation}) => {
   const [latLng, setLatLng] = useState({});
   const [nearbyShopsData, setNearbyShopData] = useState();
   const myLocation = useSelector(state => state?.user?.userData?.locationName);
-
+  console.log('refreshing', refreshing);
   console.log('nearbyShopsData', nearbyShopsData);
   const getAndRefreshAllData = () => {
     // dispatch(handleHomeData());
@@ -115,11 +115,13 @@ const Home = ({navigation}) => {
   };
 
   const getNearbyShops = async () => {
+    setRefreshing(true);
     const response = await nearbyShops(
       latLng.latitude,
       latLng.longitude,
       dispatch,
     );
+    setRefreshing(false);
     setNearbyShopData(response.data);
   };
   useEffect(() => {
@@ -152,7 +154,10 @@ const Home = ({navigation}) => {
           <>
             <ScrollView
               refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={getNearbyShops}
+                />
               }
               keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
@@ -227,14 +232,14 @@ const Home = ({navigation}) => {
                 <Br space={2} />
               </Wrapper>
               <View>
-                {loading ? (
+                {refreshing ? (
                   <View
                     style={{
                       height: hp('40%'),
                       justifyContent: 'center',
                       bottom: responsiveHeight(2),
                     }}>
-                    <ActivityIndicator size={'large'} color={Color('text')} />
+                    {/* <ActivityIndicator size={'large'} color={Color('text')} /> */}
                   </View>
                 ) : (
                   <FlatList

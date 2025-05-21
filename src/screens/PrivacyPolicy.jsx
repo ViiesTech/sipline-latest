@@ -11,6 +11,7 @@ import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {useDispatch, useSelector} from 'react-redux';
 import {handlePrivacy} from '../redux/Actions/UsersActions';
 import {LoadingAnimation} from '../utils/Alert';
+import {responsiveFontSize} from '../utils/Responsive';
 
 const PrivacyPolicy = ({navigation}) => {
   const dispatch = useDispatch();
@@ -22,6 +23,34 @@ const PrivacyPolicy = ({navigation}) => {
   //   }
   // }, []);
 
+  const data = [
+    {
+      id: 1,
+      text: 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatuDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatu',
+    },
+    {
+      id: 2,
+      text: 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatuDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatu Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatuDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatu',
+    },
+    {
+      id: 3,
+      text: 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatuDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat.',
+    },
+    {
+      id: 4,
+      text: 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatuDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatu Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatuDuis aute irure dolor in.',
+    },
+    {
+      id: 5,
+      text: ' reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatu',
+    },
+  ];
+  //   useEffect(() => {
+  //     if (!allReturnPolicyData?.returnPolicy?.content) {
+  //       dispatch(handleReturnPolicy());
+  //     }
+  //   }, []);
+
   return (
     <Background>
       <Wrapper>
@@ -32,16 +61,27 @@ const PrivacyPolicy = ({navigation}) => {
           withBack
         />
         <View style={{paddingTop: hp('3%')}}>
-          {allPrivacyData.loadingState ? (
-            <LoadingAnimation />
-          ) : (
-            <Pera
-              color={Color('text')}
-              style={{whiteSpace: 'pre-line', textAlign: 'justify'}}>
-              {allPrivacyData?.privacyText?.content ||
-                'Oops! Privacy Policy will be updated soon'}
-            </Pera>
-          )}
+          {/* {false
+                         ?
+                        <LoadingAnimation />
+                        :
+                    } */}
+          {data.map((item, index) => {
+            return (
+              <View style={{margin: 10}}>
+                <Pera
+                  key={item.id}
+                  color={Color('text')}
+                  style={{
+                    whiteSpace: 'pre-line',
+                    textAlign: 'justify',
+                    fontSize: responsiveFontSize(1.7),
+                  }}>
+                  {item.text}
+                </Pera>
+              </View>
+            );
+          })}
         </View>
       </Wrapper>
     </Background>

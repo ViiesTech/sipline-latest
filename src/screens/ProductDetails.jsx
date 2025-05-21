@@ -46,17 +46,28 @@ const ProductDetails = ({navigation, route}) => {
   const [imagPath, setImagPath] = useState();
   const [loader, setLoader] = useState(true);
   const [selectedItems, setSelectedItems] = useState([]);
-  const {productImages, price, brandName, adminId, name, _id, variants} =
-    route?.params?.item;
-  console.log('route.aprams', selectedItems);
+  const {
+    productImages,
+    price,
+    brandName,
+    shopId,
+    StockQuantity,
+    adminId,
+    name,
+    _id,
+    variants,
+  } = route?.params?.item;
+  console.log('route.aprams', route.params);
   const baseProduct = {
     _id, // Important for key & selection logic
     productImages,
     price,
     adminId,
     brandName,
+    shopId,
     name,
     isBase: true, // Optional: to distinguish it later if needed
+    StockQuantity,
   };
 
   // ✅ Combine base + variants into one array
@@ -158,7 +169,7 @@ const ProductDetails = ({navigation, route}) => {
 
     // Merge existing cart + new unique items
     const updatedCart = [...cartProducts, ...newItems];
-    console.log(selectedItems);
+    console.log('selectedItems', selectedItems);
     // Dispatch merged result
     dispatch(setCartProducts(updatedCart));
     navigation.navigate('MyCart');

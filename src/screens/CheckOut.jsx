@@ -19,19 +19,28 @@ import TotalCard from '../components/TotalCard';
 import Btn from '../components/Btn';
 import {useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {baseUrl} from '../utils/Api_contents';
+import {baseUrl, imageUrl} from '../utils/Api_contents';
 import {handleCreateOrder} from '../redux/Actions/BarActions';
 import {myCartDummyData} from '../utils/LocalData';
+import {placeOrder} from '../GlobalFunctions/Apis';
+import moment from 'moment';
 
 const Checkout = ({navigation, route}) => {
   const [loading, setLoading] = useState(false);
+  const {cartProducts, userData, adminId, isLoading} = useSelector(
+    state => state.user,
+  );
+  const date = new Date();
+  const formattedDate = moment(date).format('DD-MM-YYYY');
+  console.log('formatted date', formattedDate);
+  console.log('cartProducts', cartProducts);
   const dispatch = useDispatch();
   // const cartData = useSelector(state => state?.bars);
   const cartData = myCartDummyData;
-  const grandTotal =
-    route?.params?.grandTotal +
-    cartData?.appData?.sales_tax +
-    cartData?.appData?.platform_charges;
+  // const grandTotal =
+  //   route?.params?.grandTotal +
+  //   cartData?.appData?.sales_tax +
+  //   cartData?.appData?.platform_charges;
 
   const payBill = () => {
     const products = cartData?.cartItems?.map(item => {
@@ -59,7 +68,32 @@ const Checkout = ({navigation, route}) => {
     );
     setLoading(true);
   };
+  console.log('route.params', route.params);
+  const {grandTotal, coupon, subTotalAmount} = route?.params;
+  const shopId = cartProducts[0].shopId;
+  console.log('shopid', shopId);
+  const productsForAPI = cartProducts.map(item => ({
+    productId: item._id,
+    quantity: item.quantity,
+  }));
 
+  console.log('productsForAPI:', productsForAPI);
+  const handleOrder = async () => {
+    await placeOrder(
+      userData._id,
+      adminId,
+      shopId,
+      productsForAPI,
+      formattedDate,
+      subTotalAmount,
+      coupon,
+      15,
+      20,
+      grandTotal,
+      dispatch,
+    );
+    navigation.navigate('OrderPreparing');
+  };
   return (
     <Background>
       <Wrapper>
@@ -72,22 +106,18 @@ const Checkout = ({navigation, route}) => {
             <Pera style={{textAlign: 'center'}}>Cart is Empty!</Pera>
           ) : (
             <>
-              {cartData.cartItems?.map((item, index) => {
-                const imagPath =
-                  item.images.length === 0
-                    ? item?.images
-                    : item.images.replace(/[\[\]']+/g, '');
+              {cartProducts?.map((item, index) => {
+                console.log('imageurl', `${imageUrl}${item.productImages[0]}`);
+                // const imagPath =
+                //   item.productImages.length === 0
+                //     ? item?.productImages
+                //     : item.productImages.replace(/[\[\]']+/g, '');
                 return (
                   <CartComponent
                     isCartCounter={true}
                     key={index}
-                    imgUrl={{
-                      uri:
-                        item?.images?.length !== 0
-                          ? `${baseUrl}/customer/products/${imagPath}`
-                          : 'https://i.imghippo.com/files/oNqmr1728584671.png',
-                    }}
-                    itemPrice={item?.after_price}
+                    ImgUrl={`${imageUrl}${item.productImages[0]}`}
+                    itemPrice={item?.price}
                     itemTitle={item?.name}
                   />
                 );
@@ -152,16 +182,17 @@ const Checkout = ({navigation, route}) => {
                 2,
               )}/-`,
             },
-            {label: 'Coupon Code Discount', value: `${route?.params?.coupon}%`},
+            {
+              label: 'Coupon Code Discount',
+              value: route?.params?.coupon ? `${route?.params?.coupon}%` : '/-',
+            },
             {
               label: 'Sales Tax',
-              value: `$ ${cartData?.appData?.sales_tax.toString() || 211}%`,
+              value: '$ 1.5%',
             },
             {
               label: 'Perform Charges',
-              value: `$ ${
-                cartData?.appData?.platform_charges.toString() || 213
-              }/-`,
+              value: '$ 0.99/-',
             },
             {label: '', value: '', line: true},
             {
@@ -173,9 +204,9 @@ const Checkout = ({navigation, route}) => {
         <Br space={5} />
         <View style={{alignItems: 'flex-end'}}>
           <Btn
-            loading={loading}
+            loading={isLoading}
             // onPress={payBill}
-            onPress={() => navigation.navigate('OrderPreparing')}
+            onPress={handleOrder}
             style={{width: wp('45%')}}>
             Pay now
           </Btn>

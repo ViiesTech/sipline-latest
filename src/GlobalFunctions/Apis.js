@@ -418,30 +418,6 @@ export const getAdminProducts = async adminId => {
     throw error;
   }
 };
-export const getOrderHistory = async (userId, status, dispatch) => {
-  dispatch(setLoading(true));
-  let config = {
-    method: 'get',
-    maxBodyLength: Infinity,
-    url: `${baseUrl}${endPoints.orderHistory}?userId=${userId}&status=${status}`,
-    headers: {},
-  };
-  try {
-    const response = await axios.request(config);
-    dispatch(setLoading(false));
-    if (response.data.success) {
-      ShowToast('success', response.data.msg);
-    } else {
-      ShowToast('error', response.data.msg);
-    }
-    console.log('response', response.data);
-    return response.data;
-  } catch (error) {
-    ShowToast('error', error.response.data.msg);
-    dispatch(setLoading(false));
-    throw error;
-  }
-};
 
 export const applyCouponCode = async (couponCode, dispatch) => {
   dispatch(setLoading(true));
@@ -470,6 +446,229 @@ export const applyCouponCode = async (couponCode, dispatch) => {
   } catch (error) {
     ShowToast('error', error.response.data.msg);
     dispatch(setLoading(false));
+    throw error;
+  }
+};
+
+export const placeOrder = async (
+  userId,
+  adminId,
+  products,
+  date,
+  subTotal,
+  couponDiscount,
+  salesTax,
+  platFormCharges,
+  grandTotal,
+  dispatch,
+) => {
+  dispatch(setLoading(true));
+  let data = JSON.stringify({
+    userId: userId,
+    adminId: adminId,
+    product: products,
+    date: date, //'25-05-2025'
+    subTotal: subTotal, //250
+    couponDiscount: couponDiscount, //0
+    salesTax: salesTax, //15
+    platFormCharges: platFormCharges, //20
+    grandTotal: grandTotal, //285
+  });
+
+  let config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: `${baseUrl}${endPoints.createOrder}`,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: data,
+  };
+  try {
+    const response = await axios.request(config);
+    console.log('response.data', response.data);
+    dispatch(setLoading(false));
+    if (response.data.success) {
+      ShowToast('success', response.data.msg);
+    } else {
+      ShowToast('error', response.data.msg);
+    }
+    return response.data;
+  } catch (error) {
+    dispatch(setLoading(false));
+    ShowToast('error', error.response.data.msg);
+    throw error;
+  }
+};
+
+export const getAllOrdersByStatus = async (userId, status, dispatch) => {
+  dispatch(setLoading(true));
+  let config = {
+    method: 'get',
+    maxBodyLength: Infinity,
+    url: `${baseUrl}${endPoints.orderStatus}?userId=${userId}&status=${status}`,
+    headers: {},
+  };
+  try {
+    const response = await axios.request(config);
+    dispatch(setLoading(false));
+    if (response.data.success) {
+      console.log('res', response.data.msg);
+      ShowToast(
+        'success',
+        response.data.msg === 'All Orders By UserId!'
+          ? 'All Orders'
+          : response.data.msg,
+      );
+    } else {
+      ShowToast('error', response.data.msg);
+    }
+    return response.data;
+  } catch (error) {
+    dispatch(setLoading(false));
+    ShowToast('error', error.response.data.msg);
+    throw error;
+  }
+};
+
+export const addReview = async (
+  userId,
+  type,
+  adminId,
+  shopId,
+  stars,
+  drinkQuality,
+  serviceSpeed,
+  text,
+  dispatch,
+) => {
+  dispatch(setLoading(true));
+  let data = JSON.stringify({
+    userId: userId,
+    type: type,
+    adminId: adminId,
+    shopId: shopId,
+    stars: stars,
+    drinkQuality: drinkQuality,
+    serviceSpeed: serviceSpeed,
+    text: text,
+  });
+
+  let config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: `${baseUrl}${endPoints.addReview}`,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: data,
+  };
+  console.log('data', data);
+  try {
+    const response = await axios.request(config);
+    dispatch(setLoading(false));
+    if (response.data.success) {
+      ShowToast('success', response.data.msg);
+    } else {
+      ShowToast('error', response.data.msg);
+    }
+    console.log('response', response.data);
+    return response.data;
+  } catch (error) {
+    dispatch(setLoading(false));
+    ShowToast('error', error.response.data.message);
+    throw error;
+  }
+};
+export const addToFavourites = async (userId, shopId) => {
+  let data = JSON.stringify({
+    userId: userId,
+    shopId: shopId,
+  });
+
+  let config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: `${baseUrl}${endPoints.addOrRemoveWishList}`,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: data,
+  };
+  try {
+    const response = await axios.request(config);
+    if (response.data.success) {
+      ShowToast('success', response.data.msg);
+    } else {
+      ShowToast('error', response.data.msg);
+    }
+    console.log('response.data', response.data);
+    return response.data;
+  } catch (error) {
+    ShowToast('error', error.response.data.msg);
+    throw error;
+  }
+};
+
+export const getAllFavourites = async (userId, dispatch) => {
+  dispatch(setLoading(true));
+  let config = {
+    method: 'get',
+    maxBodyLength: Infinity,
+    url: `${baseUrl}${endPoints.wishList}?userId=${userId}`,
+    headers: {},
+  };
+  try {
+    const response = await axios.request(config);
+    dispatch(setLoading(false));
+    if (!response.data.success) {
+      ShowToast('error', response.data.msg);
+    }
+    return response.data;
+  } catch (error) {
+    dispatch(setLoading(false));
+    ShowToast('error', error.response.data.msg);
+
+    throw error;
+  }
+};
+export const getShopById = async shopId => {
+  let config = {
+    method: 'get',
+    maxBodyLength: Infinity,
+    url: `${baseUrl}${endPoints.shopById}?shopId=${shopId}`,
+    headers: {},
+  };
+  try {
+    const response = await axios.request(config);
+    if (!response.data.success) {
+      ShowToast('error', response.data.msg);
+    }
+    console.log('response.data', response.data);
+    return response.data;
+  } catch (error) {
+    ShowToast('error', error.response.data.msg);
+    throw error;
+  }
+};
+export const getAllNotifications = async (userId, dispatch) => {
+  dispatch(setLoading(true));
+  let config = {
+    method: 'get',
+    maxBodyLength: Infinity,
+    url: `${baseUrl}${endPoints.notifications}?userId=${userId}`,
+    headers: {},
+  };
+  try {
+    const response = await axios.request(config);
+    dispatch(setLoading(false));
+    if (!response.data.success) {
+      ShowToast('error', response.data.msg);
+    }
+    return response.data;
+  } catch (error) {
+    dispatch(setLoading(false));
+    ShowToast('error', error.response.data.msg);
     throw error;
   }
 };

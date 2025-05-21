@@ -18,10 +18,11 @@ import {allDiscountDummyData} from '../utils/LocalData';
 import {getAllCoupons} from '../GlobalFunctions/Apis';
 import {Pera} from '../utils/Text';
 import {responsiveFontSize, responsiveHeight} from '../utils/Responsive';
+import {setLoading} from '../reduxNew/Slices';
 
 const DiscountCoupons = ({navigation}) => {
   const dispatch = useDispatch();
-  const allDiscountData = useSelector(state => state?.inApp);
+  const {isLoading} = useSelector(state => state?.user);
   const [data, setData] = useState([]);
   const options = ['Unused', 'Used', 'Expired'];
   const [selectedValue, setSelectedValue] = useState(options[0].toString());
@@ -37,7 +38,9 @@ const DiscountCoupons = ({navigation}) => {
   //     }
   // }, []);
   const renderAllCoupons = async () => {
+    dispatch(setLoading(true));
     const response = await getAllCoupons();
+    dispatch(setLoading(false));
     setData(response.data);
     console.log('response.data', response.data);
   };
@@ -73,8 +76,7 @@ const DiscountCoupons = ({navigation}) => {
             </View>
             <HorizontalLine /> */}
       <Wrapper>
-        <Br space={2.5} />
-        {allDiscountData?.loadingState ? (
+        {isLoading ? (
           <LoadingAnimation />
         ) : (
           <>

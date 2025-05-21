@@ -5,7 +5,7 @@ import { H4, H6, Pera } from '../utils/Text';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import Img from '../assets/images/dummyGlass.png'
 
-const OrderCard = ({ imageUrl, itemId, itemName, itemPrice,onPress }) => {
+const OrderCard = ({ imageUrl, itemId,shortId, itemName, itemPrice,onPress }) => {
     return (
         <Pressable onPress={onPress}>
             <View style={{
@@ -17,7 +17,7 @@ const OrderCard = ({ imageUrl, itemId, itemName, itemPrice,onPress }) => {
                 <Image
                     resizeMode="stretch"
                     // source={{uri:imageUrl || 'https://www.testo.com/images/not-available.jpg'}}
-                    source={Img}
+                    source={{uri:imageUrl}}
                     style={{ width: wp('45%'), height: wp('35%'), borderRadius: wp('3%') }}
                 />
                 <View style={{ width: wp('48%'), paddingVertical: hp('1%') }}>
@@ -38,7 +38,7 @@ const OrderCard = ({ imageUrl, itemId, itemName, itemPrice,onPress }) => {
                         style={{ marginBottom: hp('0.4%') }}
                         bold
                         numberOfLines={1}
-                    >{`Order ID : ${itemId}`}</H6>
+                    >{`Order ID : ${shortId}`}</H6>
                 </View>
             </View>
         </Pressable>

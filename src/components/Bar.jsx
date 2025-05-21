@@ -22,7 +22,7 @@ const Bar = ({style, onPress,imgUrl,brandName,barDetails,ratings}) => {
                     // source={{
                     //     uri: imgUrl || 'https://lasinfoniavietnam.com/wp-content/uploads/2023/06/Terraco-view-1.jpg',
                     // }}
-                    source={imgUrl}
+                    source={{uri:imgUrl}}
                     style={{width: wp('35%'), height: wp('35%'), borderRadius: hp('1%')}}
                 />
                 <View style={{width: wp('48%'), paddingVertical: hp('1%')}}>
