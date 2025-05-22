@@ -57,7 +57,7 @@ const ProductDetails = ({navigation, route}) => {
     _id,
     variants,
   } = route?.params?.item;
-  console.log('route.aprams', route.params);
+  console.log('adminId', adminId);
   const baseProduct = {
     _id, // Important for key & selection logic
     productImages,
@@ -71,7 +71,11 @@ const ProductDetails = ({navigation, route}) => {
   };
 
   // ✅ Combine base + variants into one array
-  const combinedData = [baseProduct, ...(variants || [])];
+  const enrichedVariants = (variants || []).map(variant => ({
+  ...variant,
+  shopId, // ✅ Set shopId from route.params.item
+}));
+const combinedData = [baseProduct, ...enrichedVariants];
   const {cartProducts} = useSelector(state => state.user);
   // useEffect(() => {
   //   dispatch(handleProductDetails(route.params.id));
@@ -172,6 +176,7 @@ const ProductDetails = ({navigation, route}) => {
     console.log('selectedItems', selectedItems);
     // Dispatch merged result
     dispatch(setCartProducts(updatedCart));
+    dispatch(setAdminId(adminId));
     navigation.navigate('MyCart');
   };
   return (

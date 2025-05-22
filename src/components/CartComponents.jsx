@@ -11,7 +11,7 @@ import Counter from './Counter';
 import {Color} from '../utils/Colors';
 import {responsiveHeight, responsiveWidth} from '../utils/Responsive';
 import {useDispatch, useSelector} from 'react-redux';
-import {clearProductById} from '../reduxNew/Slices';
+import {clearAdminId, clearProductById} from '../reduxNew/Slices';
 
 const CartComponent = ({
   ImgUrl,
@@ -49,7 +49,12 @@ const CartComponent = ({
             {itemTitle}
           </H6>
           <TouchableOpacity
-            onPress={() => dispatch(clearProductById(id))}
+            onPress={() => {
+              dispatch(clearProductById(id));
+              if (cartProducts.length === 1) {
+                dispatch(clearAdminId());
+              }
+            }}
             style={{
               backgroundColor: '#000',
               alignItems: 'center',

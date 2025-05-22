@@ -25,6 +25,7 @@ const OrderProcessorCard = ({
   orderAddress,
   coupon,
   dateTime,
+  isBr = true,
 }) => {
   const currentDate = dateTime ? new Date(dateTime) : 'none';
   const formatter = new Intl.DateTimeFormat('en-US', {
@@ -39,7 +40,9 @@ const OrderProcessorCard = ({
   return (
     <>
       <Wrapper>
-        <Br space={4.5} />
+        {isBr ? (
+          <Br space={4.5} />
+        ) : null}
         <View
           style={{
             flexDirection: 'column',

@@ -2,6 +2,7 @@ import axios from 'axios';
 import {baseUrl, endPoints, imageUrl, userBaseUrl} from '../utils/Api_contents';
 import {ShowToast} from './ShowToast';
 import {
+  setClearProducts,
   setLoading,
   setProfileCreated,
   setTokenAndData,
@@ -453,6 +454,7 @@ export const applyCouponCode = async (couponCode, dispatch) => {
 export const placeOrder = async (
   userId,
   adminId,
+  shopId,
   products,
   date,
   subTotal,
@@ -466,6 +468,7 @@ export const placeOrder = async (
   let data = JSON.stringify({
     userId: userId,
     adminId: adminId,
+    shopId:shopId,
     product: products,
     date: date, //'25-05-2025'
     subTotal: subTotal, //250
@@ -474,7 +477,6 @@ export const placeOrder = async (
     platFormCharges: platFormCharges, //20
     grandTotal: grandTotal, //285
   });
-
   let config = {
     method: 'post',
     maxBodyLength: Infinity,
@@ -489,6 +491,7 @@ export const placeOrder = async (
     console.log('response.data', response.data);
     dispatch(setLoading(false));
     if (response.data.success) {
+      dispatch(setClearProducts());
       ShowToast('success', response.data.msg);
     } else {
       ShowToast('error', response.data.msg);

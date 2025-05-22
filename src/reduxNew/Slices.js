@@ -80,6 +80,9 @@ const authSlice = createSlice({
     setAdminId: (state, action) => {
       state.adminId = action.payload;
     },
+    clearAdminId: (state, action) => {
+      state.adminId = '';
+    },
   },
   extraReducers: builder => {
     builder
@@ -111,5 +114,6 @@ export const {
   setAdminId,
   setCartProducts,
   clearProductById,
+  clearAdminId,
 } = authSlice.actions;
 export default authSlice.reducer;

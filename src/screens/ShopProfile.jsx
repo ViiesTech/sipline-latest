@@ -36,10 +36,9 @@ import {responsiveHeight} from '../utils/Responsive';
 
 const ShopProfile = ({navigation, route}) => {
   const dispatch = useDispatch();
-  const {cartProducts, userData} = useSelector(state => state?.user);
+  const {cartProducts, userData,adminId} = useSelector(state => state?.user);
   const [barDetails, setBarDetails] = useState(null);
   const [barProducts, setBarProducts] = useState([]);
-  console.log('bar products', barProducts);
   const [categoriesValues, setCategoriesValues] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [isAddToWish, setIsAddToWish] = useState(barDetails?.id);
@@ -53,7 +52,8 @@ const ShopProfile = ({navigation, route}) => {
   const [isFavourite, setIsFavourite] = useState();
 
   console.log('today', todayData?.isActive);
-  console.log('shopData', shopData);
+  console.log('barProducts', barProducts);
+  console.log('adminId', adminId);
   useEffect(() => {
     // dispatch(handleBarProfileDetails(route?.params?.id));
   }, []);
@@ -91,16 +91,20 @@ const ShopProfile = ({navigation, route}) => {
   }, [barDetails]);
   const getShopDetailsById = async () => {
     try {
+      console.log('shopid', data._id);
       const response = await getShopById(data._id);
+      console.log('response', response.data);
       setShopData(response.data);
       // Safely extract lat/lng
-      const coords = response.data?.location?.coordinates;
-      if (coords && coords.length === 2) {
-        setLatLng({
-          latitude: coords[1],
-          longitude: coords[0],
-        });
-      }
+      // const coords = response.data?.location?.coordinates;
+      // if (coords && coords.length === 2) {
+      // console.log('coords[1]',coords[1])
+      // console.log('coords[0]',coords[0])
+      setLatLng({
+        latitude: response?.data?.latitude,
+        longitude: response?.data?.longitude,
+      });
+      // }
     } catch (error) {
       console.error('Error fetching shop details:', error);
     }

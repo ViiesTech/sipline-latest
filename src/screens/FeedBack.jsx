@@ -27,8 +27,8 @@ const FeedBack = ({navigation, route}) => {
   const dispatch = useDispatch();
   const {userData, isLoading} = useSelector(state => state.user);
   // console.log('Rout', route?.params?.ratingStar,dinkQulityValues[selectedDrinkQuality],serviceSpeedValues[selectedServicesSpeed],remarks);
-  const {adminId, ratingStar} = route.params;
-  console.log('adminId', adminId, ratingStar);
+  const {adminId, ratingStar, shopId} = route.params;
+  console.log('adminId', route.params);
   const giveFeedback = async () => {
     // dispatch(
     //     HandleFeedback(
@@ -39,17 +39,20 @@ const FeedBack = ({navigation, route}) => {
     //     serviceSpeedValues[selectedServicesSpeed],
     //     remarks
     // ))
-    await addReview(
+    const response = await addReview(
       userData._id,
       'Shop',
       adminId,
-      '681e70a5721f64b3ffaf46cc',
+      shopId,
       ratingStar,
       dinkQulityValues[selectedDrinkQuality],
       serviceSpeedValues[selectedServicesSpeed],
       remarks,
-      dispatch
+      dispatch,
     );
+    if (response.success) {
+      navigation.navigate('Home');
+    }
   };
 
   return (

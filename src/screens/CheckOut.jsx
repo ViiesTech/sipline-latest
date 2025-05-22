@@ -33,7 +33,7 @@ const Checkout = ({navigation, route}) => {
   const date = new Date();
   const formattedDate = moment(date).format('DD-MM-YYYY');
   console.log('formatted date', formattedDate);
-  console.log('cartProducts', cartProducts);
+  console.log('adminId', adminId);
   const dispatch = useDispatch();
   // const cartData = useSelector(state => state?.bars);
   const cartData = myCartDummyData;
@@ -70,7 +70,7 @@ const Checkout = ({navigation, route}) => {
   };
   console.log('route.params', route.params);
   const {grandTotal, coupon, subTotalAmount} = route?.params;
-  const shopId = cartProducts[0].shopId;
+  const shopId = cartProducts[0]?.shopId;
   console.log('shopid', shopId);
   const productsForAPI = cartProducts.map(item => ({
     productId: item._id,
@@ -79,7 +79,7 @@ const Checkout = ({navigation, route}) => {
 
   console.log('productsForAPI:', productsForAPI);
   const handleOrder = async () => {
-    await placeOrder(
+    const response = await placeOrder(
       userData._id,
       adminId,
       shopId,
@@ -88,11 +88,12 @@ const Checkout = ({navigation, route}) => {
       subTotalAmount,
       coupon,
       15,
-      20,
+      0.99,
       grandTotal,
       dispatch,
     );
-    navigation.navigate('OrderPreparing');
+    // navigation.navigate('OrderPreparing', {data: response.data,showOrderCard:false});
+    navigation.navigate('Home');
   };
   return (
     <Background>

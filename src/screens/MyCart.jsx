@@ -25,7 +25,7 @@ import {
   updateCartQuantity,
 } from '../redux/Actions/BarActions';
 import {myCartDummyData} from '../utils/LocalData';
-import {setCartProducts, setClearProducts} from '../reduxNew/Slices';
+import {clearAdminId, setCartProducts, setClearProducts} from '../reduxNew/Slices';
 import {ShowToast} from '../GlobalFunctions/ShowToast';
 import {applyCouponCode} from '../GlobalFunctions/Apis';
 import {responsiveFontSize, responsiveHeight} from '../utils/Responsive';
@@ -35,9 +35,9 @@ const MyCart = ({navigation, route}) => {
   const data = useSelector(state => state?.bars);
   const cartData = !!data?.length ? data : myCartDummyData;
   const {cartProducts, adminId, isLoading} = useSelector(state => state.user);
-  console.log('cartproducts', cartProducts);
+  console.log('adminId===<<>>><<', adminId);
   const [code, setCode] = useState('');
-  const [couponDiscount, setCouponDiscount] = useState();
+  const [couponDiscount, setCouponDiscount] = useState(0);
   const [subTotal, setSubTotal] = useState();
   const [grandTotal, setGrandTotal] = useState(0);
   const [grandTotal2, setGrandTotal2] = useState(0);
@@ -209,7 +209,10 @@ const MyCart = ({navigation, route}) => {
                 <View style={{alignItems: 'flex-end'}}>
                   <Btn
                     disabled={cartProducts.length === 0 || grandTotal === 0}
-                    onPress={() => dispatch(setClearProducts())}
+                    onPress={() => {
+                      dispatch(setClearProducts());
+                      dispatch(clearAdminId());
+                    }}
                     style={{width: wp('45%')}}>
                     Clear Products
                   </Btn>

@@ -41,7 +41,8 @@ import {responsiveHeight} from '../utils/Responsive';
 const Home = ({navigation}) => {
   const dispatch = useDispatch();
   const loading = useSelector(state => state.user.isLoading);
-
+  const {userData} = useSelector(state => state.user);
+  console.log('userdata',userData)
   // const homeData = useSelector(state => state?.bars);
   const homeData = homeDummyData;
   const [categories, setCategories] = useState([]);

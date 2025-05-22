@@ -84,21 +84,23 @@ const MyOrdersList = ({navigation}) => {
             <>
               {data?.map((item, index) => {
                 // const check = index % 2 === 0 ? true : false;
-                console.log('testing',item);
+                console.log('testing', item.status);
                 const shortOrderId = item?._id?.slice(-5);
                 return (
                   <OrderCard
                     key={index}
                     // imageUrl={`${baseUrl}/vendor/bars/${item?.tbl_bar?.bar_image}`}
-                    imageUrl={`${imageUrl}${item.product.productImages[0]}`}
+                    imageUrl={`${imageUrl}${item?.shopId?.shopImage}`}
                     itemId={item?._id}
                     shortId={shortOrderId}
-                    itemName={item?.bar_name}
+                    itemName={item?.shopId?.barName}
                     itemPrice={item?.grandTotal}
                     onPress={() =>
                       navigation.navigate('OrderPreparing', {
                         // isPicked: check,
-                        data: {...item,shortOrderId},
+                        data: {...item, shortOrderId},
+                        showOrderCard: true,
+                        status: item.status,
                       })
                     }
                   />

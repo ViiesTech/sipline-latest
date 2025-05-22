@@ -13,11 +13,14 @@ import {
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
 import {Color} from '../utils/Colors';
-import {TouchableOpacity, View} from 'react-native';
+import {FlatList, TouchableOpacity, View} from 'react-native';
 import {H3, Pera} from '../utils/Text';
 import {Star1} from 'iconsax-react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {handleOrderStatus} from '../redux/Actions/UsersActions';
+import OrderCard from '../components/OrderCard';
+import {imageUrl} from '../utils/Api_contents';
+import {responsiveHeight} from '../utils/Responsive';
 
 const OrderPreparing = ({navigation, route}) => {
   const [refreshing, setRefreshing] = useState(false);
@@ -25,7 +28,10 @@ const OrderPreparing = ({navigation, route}) => {
   const [currentRating, setCurrentRating] = useState(0);
   const dispatch = useDispatch();
   const selectedOrderStatus = useSelector(state => state.inApp);
+  const shortId = route?.params?.data?._id?.slice(-5);
+  const {data, showOrderCard, status} = route?.params;
   console.log('route.params', route.params);
+  console.log('shortId', shortId);
   useEffect(() => {
     loadStatus();
   }, []);
@@ -45,6 +51,7 @@ const OrderPreparing = ({navigation, route}) => {
     setCurrentRating(0);
     navigation.navigate('Feedback', {
       adminId: route?.params?.data?.adminId,
+      shopId: route?.params?.data?.shopId._id,
       ratingStar: newRatings,
     });
   };
@@ -74,36 +81,68 @@ const OrderPreparing = ({navigation, route}) => {
           isPickedUp={
             selectedOrderStatus?.orderStatus?.status === 'New' ? true : false
           }
+          isBr={true}
           // isbuttonShow={(selectedOrderStatus?.orderStatus?.status === "picked") || (selectedOrderStatus?.orderStatus?.status === 'Delivered') ? true : false}
           grandTotal={route?.params?.data?.grandTotal}
           platFormCharges={route?.params?.data?.platFormCharges}
           salesTax={route?.params?.data?.salesTax}
           subTotal={route?.params?.data?.subTotal}
           id={route?.params?.data?._id}
-          shortId={route?.params?.data?.shortOrderId}
+          shortId={route?.params?.data?.shortOrderId || shortId}
           //   time={
           //     route?.params?.data?.data
           //       ? route?.params?.data?.data?.tbl_bar?.tbl_cooking_time_range?.to
           //       : ''
           //   }
-          orderAddress={'Not Mentioned'}
+          orderAddress={data?.shopId?.barName || 'Not Mentioned'}
           coupon={route?.params?.data?.couponDiscount}
           dateTime={route?.params?.data?.date}
         />
+        {showOrderCard ? (
+          <FlatList
+            data={data?.product}
+            showsHorizontalScrollIndicator={false}
+            horizontal
+            contentContainerStyle={{
+              padding: responsiveHeight(2),
+              // paddingBottom: responsiveHeight(5),
+              marginTop: responsiveHeight(2),
+              marginBottom: responsiveHeight(5),
+            }}
+            keyExtractor={(item, index) => `${item?.productId?._id || index}`}
+            renderItem={({item, index}) => {
+              const shortId2 = item?.productId?._id?.slice(-5);
+
+              return (
+                <OrderCard
+                  key={index}
+                  imageUrl={`${imageUrl}${item?.productId?.productImages[0]}`}
+                  itemId={item?.productId._id}
+                  shortId={shortId2}
+                  itemName={item?.productId?.name}
+                  itemPrice={item?.productId?.price}
+                />
+              );
+            }}
+          />
+        ) : null}
       </Background>
       {/* {(selectedOrderStatus?.orderStatus?.status === 'Picked' || selectedOrderStatus?.orderStatus?.status === 'Delivered') && */}
-      <Btn
-        onPress={() => setModalVisible(true)}
-        style={{
-          width: wp('50%'),
-          zIndex: 1,
-          alignSelf: 'flex-end',
-          position: 'absolute',
-          bottom: hp('2%'),
-          right: wp('3%'),
-        }}>
-        Give Feedback
-      </Btn>
+      {status === 'Delivered' ? (
+        <Btn
+          onPress={() => setModalVisible(true)}
+          style={{
+            width: wp('50%'),
+            zIndex: 1,
+            alignSelf: 'flex-end',
+            position: 'absolute',
+            bottom: hp('1.5%'),
+            right: wp('3%'),
+          }}>
+          Give Feedback
+        </Btn>
+      ) : null}
+
       {/* } */}
       <Models visible={modalVisible} onClose={setModalVisible}>
         <View

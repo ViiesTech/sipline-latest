@@ -133,14 +133,14 @@ const BarListing = ({navigation}) => {
                           key={index}
                           onPress={() => {
                             navigation.navigate('ShopProfile', {
-                              id: item?._id,
+                              data: item,
                             });
                           }}
                           ratings={item?.avgRating}
                           brandName={item?.barName}
                           barDetails={item?.barDetails}
                           // imgUrl={`${baseUrl}/vendor/bars/${item?.bar_image}`}
-                          imgUrl={{uri: `${imageUrl}/${item?.shopImage}`}}
+                          imgUrl={`${imageUrl}/${item?.shopImage}`}
                         />
                       </>
                     );
