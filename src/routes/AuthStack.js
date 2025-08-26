@@ -15,7 +15,6 @@ const Sus = ({component}) => {
 export function AuthStack() {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
-      <Stack.Screen name="Splash" component={Splash} />
       <Stack.Screen name="Login">
         {props => <Sus component={<Login {...props} />} />}
       </Stack.Screen>

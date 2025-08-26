@@ -9,15 +9,51 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {handleLogout} from '../redux/Actions/UsersActions';
-import {clearToken} from '../reduxNew/Slices';
+import {
+  clearAdminId,
+  clearLocation,
+  clearToken,
+  setClearProducts,
+} from '../reduxNew/Slices';
+import {deleteAccount} from '../GlobalFunctions/Apis';
+import {ShowToast} from '../GlobalFunctions/ShowToast';
+import {useState} from 'react';
 
-const Logout = ({navigation}) => {
+const Logout = ({navigation, route}) => {
   const dispatch = useDispatch();
-
+  const {title, message} = route?.params;
+  const [isLoading, setIsLoading] = useState(false);
+  const {_id} = useSelector(state => state?.user?.userData);
   const callLogout = () => {
     dispatch(clearToken());
+    dispatch(clearLocation());
+    dispatch(setClearProducts());
+      navigation.navigate('AuthStack');
+
+    // navigation?.navigate('AuthStack');
+  };
+  const deleteAccountHandler = async () => {
+    setIsLoading(true);
+    try {
+      const response = await deleteAccount(_id);
+      setIsLoading(false);
+
+      if (response?.success) {
+        ShowToast('success', response?.msg);
+        dispatch(clearToken());
+        dispatch(clearLocation());
+        dispatch(setClearProducts());
+        navigation?.navigate('AuthStack');
+      } else {
+        ShowToast('error', response?.msg);
+      }
+    } catch (error) {
+      setIsLoading(false);
+
+      ShowToast('error', error?.response?.data?.msg);
+    }
   };
 
   return (
@@ -30,15 +66,13 @@ const Logout = ({navigation}) => {
               alignItems: 'center',
               height: hp('85%'),
             }}>
-            <SuccessMessage
-              title={'Logout'}
-              message={'Are you sure you want to logout'}
-            />
+            <SuccessMessage title={title} message={message} />
           </View>
         </Wrapper>
       </Background>
       <Btn
-        onPress={callLogout}
+        loading={isLoading}
+        onPress={title === 'Logout' ? callLogout : deleteAccountHandler}
         style={{
           position: 'absolute',
           zIndex: 1,
@@ -46,7 +80,7 @@ const Logout = ({navigation}) => {
           left: wp('6%'),
           width: wp('88%'),
         }}>
-        Logout
+        {title === 'Logout' ? 'Logout' : 'Delete Account'}
       </Btn>
     </>
   );

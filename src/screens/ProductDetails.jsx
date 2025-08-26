@@ -37,6 +37,7 @@ import Background from '../utils/Background';
 import {allProductMaterialDummyData} from '../utils/LocalData';
 import {responsiveHeight, responsiveWidth} from '../utils/Responsive';
 import {setAdminId, setCartProducts} from '../reduxNew/Slices';
+import {ShowToast} from '../GlobalFunctions/ShowToast';
 
 const ProductDetails = ({navigation, route}) => {
   const dispatch = useDispatch();
@@ -46,6 +47,8 @@ const ProductDetails = ({navigation, route}) => {
   const [imagPath, setImagPath] = useState();
   const [loader, setLoader] = useState(true);
   const [selectedItems, setSelectedItems] = useState([]);
+  const {token} = useSelector(state => state?.user);
+  const reduxAdminId = useSelector(state => state.user.adminId);
   const {
     productImages,
     price,
@@ -57,7 +60,7 @@ const ProductDetails = ({navigation, route}) => {
     _id,
     variants,
   } = route?.params?.item;
-  console.log('adminId', adminId);
+  console.log('variants', variants);
   const baseProduct = {
     _id, // Important for key & selection logic
     productImages,
@@ -72,10 +75,11 @@ const ProductDetails = ({navigation, route}) => {
 
   // ✅ Combine base + variants into one array
   const enrichedVariants = (variants || []).map(variant => ({
-  ...variant,
-  shopId, // ✅ Set shopId from route.params.item
-}));
-const combinedData = [baseProduct, ...enrichedVariants];
+    ...variant,
+    shopId, // ✅ Set shopId from route.params.item
+  }));
+  const combinedData = [baseProduct, ...enrichedVariants];
+  console.log('productImages', productImages);
   const {cartProducts} = useSelector(state => state.user);
   // useEffect(() => {
   //   dispatch(handleProductDetails(route.params.id));
@@ -116,28 +120,37 @@ const combinedData = [baseProduct, ...enrichedVariants];
             overflow: 'hidden',
             borderTopLeftRadius: hp('3%'),
             borderTopRightRadius: hp('3%'),
-            height: hp('70%'),
+            height: responsiveHeight(65),
+            backgroundColor: 'white',
           }}>
-          <ImageBackground
+          {/* <ImageBackground
             style={{
               borderTopLeftRadius: hp('3%'),
               borderTopRightRadius: hp('3%'),
               height: hp('70%'),
             }}
             source={require('../assets/images/sheet_background.png')}
-            resizeMode="stretch">
-            <View>
-              <Nodge />
-              <ScrollView
-                keyboardShouldPersistTaps="handled"
-                showsVerticalScrollIndicator={false}>
-                <View>
-                  {children}
-                  <Br space={5} />
-                </View>
-              </ScrollView>
-            </View>
-          </ImageBackground>
+            resizeMode="stretch"> */}
+          <View
+            style={{
+              borderTopLeftRadius: hp('3%'),
+              borderTopRightRadius: hp('3%'),
+              height: responsiveHeight(65),
+
+              // height:responsiveHeight(60),
+              // height: hp('70%'),
+            }}>
+            <Nodge />
+            <ScrollView
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}>
+              <View>
+                {children}
+                <Br space={5} />
+              </View>
+            </ScrollView>
+          </View>
+          {/* </ImageBackground> */}
         </View>
       </View>
     );
@@ -166,6 +179,13 @@ const combinedData = [baseProduct, ...enrichedVariants];
     });
   };
   const handleAddToCart = () => {
+    if (!token) {
+      // return ShowToast('error', 'Please log in to continue with this action.');
+     return navigation.navigate('AuthStack');
+    }
+    if (selectedItems.length < 1) {
+      return ShowToast('error', 'Please Select a Product To Proceed');
+    }
     // Filter out products that already exist in the Redux cart
     const newItems = selectedItems.filter(
       selected => !cartProducts.some(cartItem => cartItem._id === selected._id),
@@ -175,6 +195,14 @@ const combinedData = [baseProduct, ...enrichedVariants];
     const updatedCart = [...cartProducts, ...newItems];
     console.log('selectedItems', selectedItems);
     // Dispatch merged result
+    if (reduxAdminId) {
+      if (reduxAdminId !== adminId) {
+        return ShowToast(
+          'error',
+          'Clear your cart before adding items from another shop.',
+        );
+      }
+    }
     dispatch(setCartProducts(updatedCart));
     dispatch(setAdminId(adminId));
     navigation.navigate('MyCart');
@@ -191,7 +219,7 @@ const combinedData = [baseProduct, ...enrichedVariants];
           <ImageBackground
             // source={{ uri: allProductMaterial?.productDetails ? `${baseUrl}/customer/products/${imagPath}` : 'https://lasinfoniavietnam.com/wp-content/uploads/2023/06/Terraco-view-1.jpg' }}
             source={{uri: `${imageUrl}${productImages[0]}`}}
-            style={{height: hp('40%')}}>
+            style={{height: responsiveHeight(37)}}>
             <Wrapper
               x={2}
               style={{backgroundColor: Color('modelBackground'), flexGrow: 1}}>
@@ -234,6 +262,9 @@ const combinedData = [baseProduct, ...enrichedVariants];
               <H4 style={styles.variationText} bold>
                 Variations
               </H4>
+              <H4 style={{marginVertical: responsiveHeight(1.5)}} bold>
+                Tap any product to select it.
+              </H4>
             </Wrapper>
             <Br space={1} />
             <View style={{paddingLeft: wp('6%')}}>
@@ -257,7 +288,8 @@ const combinedData = [baseProduct, ...enrichedVariants];
                         height: responsiveHeight(15),
                         borderRadius: 10,
                       }}
-                      imgrUrl={{uri: `${imageUrl}${item?.productImages?.[0]}`}}
+                      showHeart={false}
+                      imgrUrl={{uri: `${imageUrl}${item?.productImages[0]}`}}
                       name={item?.name}
                       price={`$${parseFloat(item?.price).toFixed(2)}/-`}
                       isSelected={isSelected}
@@ -279,7 +311,7 @@ const combinedData = [baseProduct, ...enrichedVariants];
               <View
                 style={{
                   alignItems: 'center',
-                  marginTop: hp('10%'),
+                  marginTop: hp('7%'),
                 }}>
                 <Btn onPress={handleAddToCart} style={{width: wp('80%')}}>
                   Add to Cart

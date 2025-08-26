@@ -32,13 +32,13 @@ const ResetPassword = ({navigation, route}) => {
       Message('Password is required!', 'Please enter your password.');
       return false;
     }
-    if (!validator.isStrongPassword(user?.password)) {
-      Message(
-        'Password is weak!',
-        'Please enter a strong password that contains letters, numbers and a special character.',
-      );
-      return false;
-    }
+    // if (!validator.isStrongPassword(user?.password)) {
+    //   Message(
+    //     'Password is weak!',
+    //     'Please enter a strong password that contains letters, numbers and a special character.',
+    //   );
+    //   return false;
+    // }
 
     if (validator.isEmpty(user?.confirm_password)) {
       Message(

@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react/react-in-jsx-scope */
@@ -13,6 +14,8 @@ import Toast from 'react-native-toast-message';
 import { Routes } from './src/routes/Routes';
 import { persistor, store } from './src/reduxNew/Store';
 import { PersistGate } from 'redux-persist/integration/react';
+import ReturnOrder from './src/screens/ReturnOrder';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 function App() {
@@ -26,12 +29,12 @@ function App() {
   }, []);
 
   return (
-    <>
+    <SafeAreaView style={{ flex: 1 }}>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
       <NavigationContainer ref={navigationRef}>
         <Routes />
       </NavigationContainer>
-    </>
+    </SafeAreaView>
   );
 }
 

@@ -8,7 +8,7 @@ import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 const { width, height } = Dimensions.get('screen');
 
-const Background = ({ children, noBackground, noScroll, detectScrollEnd, onScrollEnd, Auth, flex, refreshing, onRefresh }) => {
+const Background = ({ children, noBackground = true, noScroll, detectScrollEnd, onScrollEnd, Auth, flex, refreshing, onRefresh }) => {
 
     useEffect(() => {
         if (Auth) {hasToken();}
@@ -89,6 +89,7 @@ export default Background;
 const styles = StyleSheet.create({
     safeAreaView: {
         flex: 1,
+        backgroundColor:'white',
         paddingTop: Platform.OS === 'android' ? 25 : 0,
     },
     backgroundImage: {

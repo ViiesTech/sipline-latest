@@ -1,5 +1,5 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {Suspense} from 'react';
+import {Suspense, useEffect} from 'react';
 import Loading from '../screens/Loading';
 import Home from '../screens/Home';
 import Profile from '../screens/Profile';
@@ -25,22 +25,54 @@ import DeleteCard from '../screens/DeleteCard';
 import Search from '../screens/Search';
 import Notification from '../screens/Notification';
 import Final from '../screens/authentication/Final';
+import Map from '../screens/authentication/Map';
+import Splash from '../screens/Splash';
+import RefundProductSelect from '../screens/RefundProductSelect';
+import ReturnOrder from '../screens/ReturnOrder';
+import {ProfileStack} from './ProfileStack';
+import {useDispatch, useSelector} from 'react-redux';
+import {AuthStack} from './AuthStack';
+import {useNavigation} from '../utils/NavigationContext';
+import {setProfileCreated} from '../reduxNew/Slices';
+import OTP from '../screens/authentication/OTP';
 
 const Stack = createNativeStackNavigator();
 const Sus = ({component}) => {
   return <Suspense fallback={<Loading />}>{component}</Suspense>;
 };
 export function MainStack() {
+  const {token, profileCreated} = useSelector(state => state?.user);
+  console.log('profileCreated==****=', profileCreated);
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+  // useEffect(() => {
+  //   if (token) {
+  //     navigation.navigate('Home');
+  //   }
+  // }, [token]);
+
+  useEffect(() => {
+    if (token && !profileCreated) {
+      navigation.navigate('OnboardingStack');
+    }
+  }, [token, profileCreated]);
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
-      <Stack.Screen name="Final">
-        {props => <Sus component={<Final {...props} />} />}
-      </Stack.Screen>
+      {token && !profileCreated ? (
+        <Stack.Screen name="OnboardingStack" component={ProfileStack} />
+      ) : null}
       <Stack.Screen name="Home">
         {props => <Sus component={<Home {...props} />} />}
       </Stack.Screen>
+      <Stack.Screen name="AuthStack">
+        {props => <Sus component={<AuthStack {...props} />} />}
+      </Stack.Screen>
       <Stack.Screen name="Profile">
         {props => <Sus component={<Profile {...props} />} />}
+      </Stack.Screen>
+      {/* <Stack.Screen name="OnboardingStack" component={ProfileStack} /> */}
+      <Stack.Screen name="OTP">
+        {props => <Sus component={<OTP {...props} />} />}
       </Stack.Screen>
       <Stack.Screen name="Terms">
         {props => <Sus component={<Terms {...props} />} />}
@@ -50,6 +82,12 @@ export function MainStack() {
       </Stack.Screen>
       <Stack.Screen name="Support">
         {props => <Sus component={<Support {...props} />} />}
+      </Stack.Screen>
+      <Stack.Screen name="RefundProductSelect">
+        {props => <Sus component={<RefundProductSelect {...props} />} />}
+      </Stack.Screen>
+      <Stack.Screen name="RefundProduct">
+        {props => <Sus component={<ReturnOrder {...props} />} />}
       </Stack.Screen>
       <Stack.Screen name="Return">
         {props => <Sus component={<Return {...props} />} />}
@@ -87,6 +125,9 @@ export function MainStack() {
       <Stack.Screen name="MyCart">
         {props => <Sus component={<MyCart {...props} />} />}
       </Stack.Screen>
+      <Stack.Screen name="Map">
+        {props => <Sus component={<Map {...props} />} />}
+      </Stack.Screen>
       <Stack.Screen name="Checkout">
         {props => <Sus component={<Checkout {...props} />} />}
       </Stack.Screen>
@@ -105,6 +146,12 @@ export function MainStack() {
       <Stack.Screen name="Notification">
         {props => <Sus component={<Notification {...props} />} />}
       </Stack.Screen>
+      <Stack.Screen name="Final">
+        {props => <Sus component={<Final {...props} />} />}
+      </Stack.Screen>
+      {/* <Stack.Screen name="Final">
+        {props => <Sus component={<Final {...props} />} />}
+      </Stack.Screen> */}
     </Stack.Navigator>
   );
 }

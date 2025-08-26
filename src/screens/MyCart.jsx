@@ -25,7 +25,11 @@ import {
   updateCartQuantity,
 } from '../redux/Actions/BarActions';
 import {myCartDummyData} from '../utils/LocalData';
-import {clearAdminId, setCartProducts, setClearProducts} from '../reduxNew/Slices';
+import {
+  clearAdminId,
+  setCartProducts,
+  setClearProducts,
+} from '../reduxNew/Slices';
 import {ShowToast} from '../GlobalFunctions/ShowToast';
 import {applyCouponCode} from '../GlobalFunctions/Apis';
 import {responsiveFontSize, responsiveHeight} from '../utils/Responsive';
@@ -34,13 +38,14 @@ const MyCart = ({navigation, route}) => {
   const dispatch = useDispatch();
   const data = useSelector(state => state?.bars);
   const cartData = !!data?.length ? data : myCartDummyData;
-  const {cartProducts, adminId, isLoading} = useSelector(state => state.user);
+  const {cartProducts, adminId} = useSelector(state => state.user);
   console.log('adminId===<<>>><<', adminId);
   const [code, setCode] = useState('');
   const [couponDiscount, setCouponDiscount] = useState(0);
   const [subTotal, setSubTotal] = useState();
   const [grandTotal, setGrandTotal] = useState(0);
   const [grandTotal2, setGrandTotal2] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   console.log('grandTotal', grandTotal);
   console.log('grandTotal2', grandTotal2);
@@ -84,10 +89,15 @@ const MyCart = ({navigation, route}) => {
       cartData.cartItems?.length > 0
     ) {
       //   return dispatch(handleCoupons(code, cartData.cartItems[0]?.barId));
+      setIsLoading(true);
       const response = await applyCouponCode(code, dispatch);
+      console.log('responnnseee', response);
+      setIsLoading(false);
       setCouponDiscount(response.data.discountPercent);
       console.log('response', response);
     } else {
+      setIsLoading(false);
+
       ToastAndroid.show('Please enter coupon code!', ToastAndroid.SHORT);
     }
   };
@@ -130,10 +140,9 @@ const MyCart = ({navigation, route}) => {
 
   const handleIncrease = productId => {
     const updatedCart = cartProducts.map(item => {
-        console.log('stockquantity',item);
+      console.log('stockquantity', item);
 
       if (item._id === productId && item.quantity < item.StockQuantity) {
-
         return {
           ...item,
           quantity: item.quantity + 1,

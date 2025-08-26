@@ -8,6 +8,7 @@ import Final from '../screens/authentication/Final';
 import {Suspense} from 'react';
 import Loading from '../screens/Loading';
 import {useSelector} from 'react-redux';
+import Splash from '../screens/Splash';
 
 const Stack = createNativeStackNavigator();
 const Sus = ({component}) => {

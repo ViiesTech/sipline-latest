@@ -18,6 +18,7 @@ import {
 import {Color} from '../utils/Colors';
 import {useSelector} from 'react-redux';
 import {responsiveWidth} from '../utils/Responsive';
+import {ShowToast} from '../GlobalFunctions/ShowToast';
 
 const Header = ({
   navigation,
@@ -31,6 +32,8 @@ const Header = ({
   fixed,
   titleColor,
   setState,
+  handleTextChange,
+  showFilteration = false,
 }) => {
   const iconSize = hp('2.6%');
   const fixedStyle = fixed
@@ -42,7 +45,7 @@ const Header = ({
         zIndex: 2,
       }
     : {};
-  const userData = useSelector(state => state?.auth?.permission?.allUserData);
+  const {token} = useSelector(state => state?.user);
 
   const Left = () => {
     return (
@@ -59,7 +62,11 @@ const Header = ({
         </TouchableOpacity>
         <TouchableOpacity
           style={{width: responsiveWidth(50)}}
-          onPress={() => setState(true)}>
+          onPress={() =>
+            token
+              ? setState(true)
+              : navigation.navigate('AuthStack')
+          }>
           <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
             <Pera>My location</Pera>
             <ArrowDown2 size={hp('2.2%')} color={Color('text')} />
@@ -75,11 +82,19 @@ const Header = ({
   const Right = () => {
     return (
       <View style={{flexDirection: 'row', gap: wp('5%')}}>
-        <TextalignCenter size={iconSize} color={Color('text')} />
-        <TouchableOpacity onPress={() => navigation.navigate('Search')}>
+        {/* <TextalignCenter size={iconSize} color={Color('text')} /> */}
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate('BarListing', {type: 'searchShops'})
+          }>
           <SearchNormal size={iconSize} color={Color('text')} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Notification')}>
+        <TouchableOpacity
+          onPress={() =>
+            token
+              ? navigation.navigate('Notification')
+              : navigation.navigate('AuthStack')
+          }>
           <Notification size={iconSize} color={Color('text')} />
         </TouchableOpacity>
       </View>
@@ -93,6 +108,7 @@ const Header = ({
           flexDirection: 'row',
           alignItems: 'center',
           gap: 10,
+
           ...fixedStyle,
         }}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -119,6 +135,8 @@ const Header = ({
             width: wp('77%'),
           }}>
           <TextInput
+            onChangeText={text => handleTextChange(text)}
+            placeholderTextColor={'#AEAEAE'}
             style={{
               color: Color('text'),
               height: hp('4%'),
@@ -129,9 +147,11 @@ const Header = ({
             }}
             placeholder="Search"
           />
-          <TouchableOpacity onPress={() => setState(true)}>
-            <TextalignCenter size={hp('2.5%')} color={Color('text')} />
-          </TouchableOpacity>
+          {showFilteration ? (
+            <TouchableOpacity onPress={() => setState(true)}>
+              <TextalignCenter size={hp('2.5%')} color={Color('text')} />
+            </TouchableOpacity>
+          ) : null}
         </View>
       </View>
     );
@@ -197,6 +217,7 @@ const Header = ({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
+
         zIndex: 1,
         ...fixedStyle,
       }}>

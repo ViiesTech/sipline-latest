@@ -1,8 +1,10 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {
+  Alert,
   Image,
   ImageBackground,
+  Platform,
   ToastAndroid,
   TouchableOpacity,
   View,
@@ -17,6 +19,7 @@ import KFC from '../assets/images/Kfc.png';
 import {default as Clipboard} from '@react-native-clipboard/clipboard';
 import {useDispatch, useSelector} from 'react-redux';
 import {setAdminId} from '../reduxNew/Slices';
+import {responsiveHeight, responsiveWidth} from '../utils/Responsive';
 
 const DiscountCard = ({
   imgUrl,
@@ -29,7 +32,7 @@ const DiscountCard = ({
 }) => {
   const dispatch = useDispatch();
   const couponBy = useSelector(state => state.user.adminId);
-  console.log('adminId',couponBy);
+  console.log('adminId', couponBy);
   return (
     <>
       <ImageBackground
@@ -43,10 +46,16 @@ const DiscountCard = ({
         <TouchableOpacity
           onLongPress={() => {
             Clipboard.setString(couponCode);
-            ToastAndroid.show(
-              'Coupon code copied to clipboard!',
-              ToastAndroid.SHORT,
-            );
+
+            if (Platform.OS === 'android') {
+              ToastAndroid.show(
+                'Coupon code copied to clipboard!',
+                ToastAndroid.SHORT,
+              );
+            } else {
+              Alert.alert('Copied!', 'Coupon code copied to clipboard!');
+            }
+
             dispatch(setAdminId(adminId));
           }}
           onPress={getCouponCode}
@@ -60,10 +69,10 @@ const DiscountCard = ({
             <Image
               // source={{ uri: imgUrl }}
               source={imgUrl}
-              // resizeMode="contain"
+              resizeMode="stretch"
               style={{
-                width: wp('25%'),
-                height: wp('25%'),
+                width: responsiveWidth(28),
+                height: responsiveHeight(9),
                 borderRadius: wp('2%'),
               }}
             />

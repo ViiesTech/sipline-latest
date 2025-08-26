@@ -23,7 +23,8 @@ import {Message} from '../utils/Alert';
 import {handleProfileUpdate} from '../redux/Actions/UsersActions';
 import {TouchableOpacity, View} from 'react-native';
 import {CreateProfile} from '../GlobalFunctions/Apis';
-import { setLoading } from '../reduxNew/Slices';
+import {setLoading} from '../reduxNew/Slices';
+import {ShowToast} from '../GlobalFunctions/ShowToast';
 
 const EditProfile = ({navigation}) => {
   const dispatch = useDispatch();
@@ -40,7 +41,8 @@ const EditProfile = ({navigation}) => {
     // profile_image: '',
     profile_imageUrl: '',
   });
-  console.log('profle', profile);
+  console.log('userDetails', userDetails);
+  const [isLoading, setIsLoading] = useState(false);
   const uploadProfileImage = async () => {
     const result = await launchImageLibrary({
       mediaType: 'photo',
@@ -79,7 +81,8 @@ const EditProfile = ({navigation}) => {
 
   const updateProfile = async () => {
     // dispatch(handleProfileUpdate(profile, dob));
-    await CreateProfile({
+    setIsLoading(true);
+    const response = await CreateProfile({
       userId: userId,
       name: profile.full_name,
       dob: profile.date_of_birth,
@@ -89,6 +92,11 @@ const EditProfile = ({navigation}) => {
       dispatch,
       navigation,
     });
+    setIsLoading(false);
+
+    if (response.success) {
+      ShowToast('success', 'Profile Updated Successfully');
+    }
   };
 
   const Selected = () => {
@@ -132,10 +140,7 @@ const EditProfile = ({navigation}) => {
               ],
             );
           }}
-          imgUrl={
-            profile?.profile_imageUrl ||
-            `${imageUrl}${userDetails?.profileImage}`
-          }
+          imgUrl={userData?.profileImage}
         />
         <Br space={3} />
         <Pera style={{marginBottom: hp('0.5%'), paddingLeft: wp('1%')}}>
@@ -150,6 +155,7 @@ const EditProfile = ({navigation}) => {
             />
           }
           defaultValue={profile?.full_name}
+          placeholder={userDetails?.fullName || 'Your Name'}
           value={profile?.full_name}
           onChangeText={value => setProfile({...profile, full_name: value})}
           isDefaultFocused
@@ -157,7 +163,7 @@ const EditProfile = ({navigation}) => {
         <Br space={1.5} />
         <Input
           multiline
-          placeholder="Bio"
+          placeholder={userDetails?.bio || 'Your Bio'}
           numberOfLines={10}
           defaultValue={profile?.bio}
           value={profile?.bio}
@@ -174,9 +180,9 @@ const EditProfile = ({navigation}) => {
         <View style={{flexDirection: 'row', gap: 20, justifyContent: 'center'}}>
           <View>
             <TouchableOpacity
-              onPress={() => setProfile({...profile, gender: 'male'})}
+              onPress={() => setProfile({...profile, gender: 'Male'})}
               style={genderSelectBox}>
-              {profile?.gender === 'male' && <Selected />}
+              {profile?.gender === 'Male' && <Selected />}
               <User size={hp('4%')} color={Color('text')} />
             </TouchableOpacity>
             <Pera style={{textAlign: 'center', marginTop: hp('1.5%')}}>
@@ -185,9 +191,9 @@ const EditProfile = ({navigation}) => {
           </View>
           <View>
             <TouchableOpacity
-              onPress={() => setProfile({...profile, gender: 'female'})}
+              onPress={() => setProfile({...profile, gender: 'Female'})}
               style={genderSelectBox}>
-              {profile?.gender === 'female' && <Selected />}
+              {profile?.gender === 'Female' && <Selected />}
               <Profile2User size={hp('4%')} color={Color('text')} />
             </TouchableOpacity>
             <Pera style={{textAlign: 'center', marginTop: hp('1.5%')}}>
@@ -196,7 +202,7 @@ const EditProfile = ({navigation}) => {
           </View>
         </View>
         <Br space={3} />
-        <Btn loading={loading} onPress={updateProfile}>
+        <Btn loading={isLoading} onPress={updateProfile}>
           Update
         </Btn>
         <Br space={3} />

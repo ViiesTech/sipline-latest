@@ -1,13 +1,16 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import {  ClipboardText, Home, ShoppingCart, User } from 'iconsax-react-native';
+import { ClipboardText, Heart, Home, SearchNormal, ShoppingCart, User } from 'iconsax-react-native';
 import { Color } from '../utils/Colors';
 import { useNavigation } from '../utils/NavigationContext';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
+import { useSelector } from 'react-redux';
+import { ShowToast } from '../GlobalFunctions/ShowToast';
 
 const NavigationBar = () => {
     const { navigate } = useNavigation();
+    const { token } = useSelector(state => state?.user);
     return (
         <View style={styles.navigationBar}>
             <TouchableOpacity style={{ flex: 1, alignItems: 'center' }} onPress={() => navigate('Home')}>
@@ -18,12 +21,9 @@ const NavigationBar = () => {
                     />
                 </View>
             </TouchableOpacity>
-            <TouchableOpacity style={{ flex: 1, alignItems: 'center' }} onPress={() => navigate('BarListing')}>
+            <TouchableOpacity style={{ flex: 1, alignItems: 'center' }} onPress={() => navigate('BarListing', { type: 'searchShops' })}>
                 <View>
-                    <ClipboardText
-                        size={hp('2.5%')}
-                        color={Color('text')}
-                    />
+                    <SearchNormal size={hp('2.5%')} color={Color('text')} />
                 </View>
             </TouchableOpacity>
             <TouchableOpacity style={{ flex: 1, alignItems: 'center' }} onPress={() => navigate('MyCart')}>
@@ -35,12 +35,17 @@ const NavigationBar = () => {
                 </View>
             </TouchableOpacity>
             <TouchableOpacity
-                onPress={() => navigate('EditProfile')}
+                onPress={() => token ? navigate('WishList') : navigate('AuthStack')}
                 style={{ flex: 1, alignItems: 'center' }}>
                 <View>
-                    <User
+                    {/* <User
                         size={hp('2.5%')}
                         color={Color('text')}
+                    /> */}
+                    <Heart
+                        size={hp('2.5%')}
+                        color={Color('text')}
+                        variant={'Outline'}
                     />
                 </View>
             </TouchableOpacity>
@@ -62,7 +67,6 @@ const styles = StyleSheet.create({
         borderRadius: hp('1%'),
         alignSelf: 'center',
         zIndex: 1,
-
         shadowColor: Color('text'),
         shadowOffset: {
             width: 0,

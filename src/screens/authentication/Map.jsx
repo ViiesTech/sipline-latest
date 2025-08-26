@@ -12,6 +12,7 @@ import Br from '../../components/Br';
 import {
   Keyboard,
   PermissionsAndroid,
+  Platform,
   Pressable,
   StyleSheet,
   TextInput,
@@ -26,6 +27,10 @@ import Btn from '../../components/Btn';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import {ApiKey} from '../../utils/Api_contents';
 import Geocoder from 'react-native-geocoding';
+import {useDispatch, useSelector} from 'react-redux';
+import {setLocationAdded, setMyLocation} from '../../reduxNew/Slices';
+import {ShowToast} from '../../GlobalFunctions/ShowToast';
+import {addLocation, editLocation} from '../../GlobalFunctions/Apis';
 
 const Map = ({navigation, route}) => {
   const [location, setLocation] = useState({
@@ -36,27 +41,30 @@ const Map = ({navigation, route}) => {
   const mapRef = useRef();
   const [isToConfirm, setIsToConfirm] = useState(false);
   const [searchText, setSearchText] = useState('');
-  console.log('route', route.params);
+  const dispatch = useDispatch();
+  const {type, category, edit, locId} = route?.params;
+  const [isLoading, setIsLoading] = useState(false);
+  console.log('category', category);
+  const {_id} = useSelector(state => state.user.userData);
   Geocoder.init(ApiKey);
 
-  const getCurrentLocation = () => {
+  function getCurrentLocation() {
     Geolocation.getCurrentPosition(
-      position => {
-        const {latitude, longitude} = position.coords;
-        console.log('Current Location:', latitude, longitude);
-        fetchAddressAndSetLocation(latitude, longitude);
+      pos => {
+        const crd = pos.coords;
+        setLocation({
+          latitude: crd.latitude,
+          longitude: crd.longitude,
+          latitudeDelta: 0.0421,
+          longitudeDelta: 0.0421,
+        });
       },
-      error => {
-        console.warn('Location error:', error.message);
+      err => {
+        console.log(err);
       },
-      {
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 10000,
-      },
+      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
     );
-  };
-
+  }
   const fetchAddressAndSetLocation = (latitude, longitude) => {
     Geocoder.from(latitude, longitude)
       .then(json => {
@@ -75,38 +83,82 @@ const Map = ({navigation, route}) => {
   }, []);
 
   async function requestLocationPermission() {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        {
-          title: 'SipLine App',
-          message: 'Sipline App access to your location ',
-        },
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        Geolocation.getCurrentPosition(
-          pos => {
-            const crd = pos.coords;
-            setLocation({
-              latitude: crd.latitude,
-              longitude: crd.longitude,
-              latitudeDelta: 0.0421,
-              longitudeDelta: 0.0421,
-            });
-          },
-          err => {
-            console.log(err);
+    if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          {
+            title: 'SipLine App',
+            message: 'Sipline App access to your location',
           },
         );
-      } else {
-        console.log('location permission denied');
-        alert('Location permission denied');
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          getCurrentLocation();
+        } else {
+          console.log('location permission denied');
+        }
+      } catch (err) {
+        console.warn(err);
       }
-    } catch (err) {
-      console.warn(err);
+    } else {
+      // iOS automatically prompts the first time
+      getCurrentLocation();
     }
   }
+  const editLocationHandler = async () => {
+    setIsLoading(true);
+    try {
+      const response = await editLocation(
+        locId,
+        location?.longitude,
+        location?.latitude,
+        location?.address,
+        category,
+      );
+      setIsLoading(false);
 
+      console.log('response', response);
+      if (response.success) {
+        dispatch(setLocationAdded());
+        navigation.goBack();
+        ShowToast('success', response.msg);
+      } else {
+        ShowToast('error', response.msg);
+      }
+    } catch (err) {
+      setIsLoading(false);
+
+      ShowToast('error', error?.response?.data?.msg);
+      console.log('error', err);
+    }
+  };
+  const addLocationHandler = async () => {
+    setIsLoading(true);
+    try {
+      const response = await addLocation(
+        _id,
+        location?.latitude,
+        location?.longitude,
+        location?.address,
+        category,
+      );
+      setIsLoading(false);
+
+      console.log('response', response);
+      if (response.success) {
+        dispatch(setLocationAdded());
+        navigation.goBack();
+        ShowToast('success', response.msg);
+      } else {
+        ShowToast('error', response.msg);
+      }
+    } catch (err) {
+      setIsLoading(false);
+
+      ShowToast('error', error?.response?.data?.msg);
+      console.log('error', err);
+    }
+  };
   const ConfirmLocation = () => {
     return (
       <View
@@ -145,15 +197,30 @@ const Map = ({navigation, route}) => {
         </View>
         <Br space={4} />
         <Btn
-          onPress={() =>
-            navigation.navigate('AddLocation', {
-              ...route.params,
-              locationSelected: true,
-              lat: location.latitude,
-              lng: location.longitude,
-              address: location.address,
-            })
-          }>
+          loading={isLoading}
+          onPress={() => {
+            if (type === 'AuthStack') {
+              navigation.navigate('AddLocation', {
+                ...route.params,
+                locationSelected: true,
+                lat: location?.latitude,
+                lng: location?.longitude,
+                address: location?.address,
+              });
+              // console.log('route.params',route.params,location.latitude,location.longitude,location.address)
+            } else {
+              // dispatch(
+              //   setMyLocation({
+              //     lat: location.latitude,
+              //     lng: location.longitude,
+              //     address: location.address,
+              //     category: route?.params?.category,
+              //   }),
+              // );
+              // navigation.navigate('Home');
+              edit ? editLocationHandler() : addLocationHandler();
+            }
+          }}>
           Confirm Location
         </Btn>
       </View>
@@ -224,6 +291,14 @@ const Map = ({navigation, route}) => {
             language: 'en',
             //   types: 'geocode',
           }}
+          styles={{
+            textInput: {
+              color: 'black', // Text color
+            },
+            description: {
+              color: '#000', // 👈 suggestion item text
+            },
+          }}
           // All other default props explicitly defined
           autoFillOnNotFound={false}
           currentLocation={false}
@@ -278,8 +353,8 @@ const Map = ({navigation, route}) => {
           mapType="terrain"
           style={{height: '100%', width: '100%'}}
           initialRegion={{
-            latitude: location.latitude,
-            longitude: location.longitude,
+            latitude: location?.latitude,
+            longitude: location?.longitude,
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
           }}
@@ -300,8 +375,8 @@ const Map = ({navigation, route}) => {
           }}>
           <Marker
             coordinate={{
-              latitude: location.latitude,
-              longitude: location.longitude,
+              latitude: location?.latitude,
+              longitude: location?.longitude,
             }}
             title="User Location"
             description="Here we are at the moment!"
@@ -311,7 +386,7 @@ const Map = ({navigation, route}) => {
         <TouchableOpacity
           style={{
             position: 'absolute',
-            bottom: location.address ? hp('25%') : hp('5%'),
+            bottom: location?.address ? hp('25%') : hp('5%'),
             zIndex: 100,
             right: wp('7%'),
             backgroundColor: Color('headerIcon'),
@@ -329,7 +404,7 @@ const Map = ({navigation, route}) => {
           onPress={() => getCurrentLocation()}>
           <Gps size="32" color={Color('text')} variant="Bold" />
         </TouchableOpacity>
-        {location.address && <ConfirmLocation />}
+        {location?.address && <ConfirmLocation />}
       </Pressable>
     </>
   );

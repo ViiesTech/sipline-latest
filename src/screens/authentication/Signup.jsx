@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Wrapper from '../../utils/Wrapper';
 import AuthLayout from './AuthLayout';
 import {H4, Pera} from '../../utils/Text';
@@ -18,6 +18,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {Message} from '../../utils/Alert';
 import {RegisterUser} from '../../GlobalFunctions/Apis';
 import {setLoading} from '../../reduxNew/Slices';
+import DOB from '../../components/DOB';
 const Signup = ({navigation}) => {
   const validator = require('validator');
   const dispatch = useDispatch();
@@ -29,6 +30,7 @@ const Signup = ({navigation}) => {
   });
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const loading = useSelector(state => state.user.isLoading);
+  const [dob, setDob] = useState('');
 
   const handleChange = (value, text) => {
     setFormState({
@@ -42,10 +44,10 @@ const Signup = ({navigation}) => {
       Message('Email is required!', 'Please enter your email.');
       return false;
     }
-    if (!validator.isEmail(formState?.email)) {
-      Message('Email is not valid!', 'Please enter your valid email address.');
-      return false;
-    }
+    // if (!validator.isEmail(formState?.email)) {
+    //   Message('Email is not valid!', 'Please enter your valid email address.');
+    //   return false;
+    // }
 
     if (validator.isEmpty(formState?.phone)) {
       Message('Phone number is required!', 'Please enter your phone number.');
@@ -86,8 +88,8 @@ const Signup = ({navigation}) => {
     const checkValidation = isValid();
     if (checkValidation) {
       const {email, phone, password} = formState;
-      console.log(email, phone, password,"gfhg");
-      await RegisterUser(email, phone, password, navigation,dispatch);
+      console.log(email, phone, password, 'gfhg');
+      await RegisterUser(email, phone, password, dob, navigation, dispatch);
       //   return dispatch(handleLoading(formState, navigation));
     }
   };
@@ -122,8 +124,17 @@ const Signup = ({navigation}) => {
           placeholder={'Phone'}
           keyboardType="number-pad"
         />
+        {/* <Pera style={{marginBottom: hp('0.5%'), paddingLeft: wp('1%')}}>
+          Phone
+        </Pera> */}
+        <DOB dob={dob} setDob={setDob} />
 
-        <Pera style={{marginBottom: hp('0.5%'), paddingLeft: wp('1%')}}>
+        <Pera
+          style={{
+            marginBottom: hp('0.5%'),
+            marginTop: hp('2%'),
+            paddingLeft: wp('1%'),
+          }}>
           Password
         </Pera>
         <Input

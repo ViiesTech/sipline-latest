@@ -10,6 +10,9 @@ const initialState = {
   profileCreated: false,
   cartProducts: [],
   isLoading: false,
+  myLocations: [],
+  currentLocation: {},
+  locationAdded: false,
   error: null,
 };
 
@@ -47,6 +50,10 @@ const authSlice = createSlice({
       state.userData = {};
       state.profileCreated = false;
     },
+    clearLocation: (state, action) => {
+      state.myLocations = [];
+      state.currentLocation = {};
+    },
     setToken: (state, action) => {
       state.token = action.payload;
     },
@@ -59,11 +66,26 @@ const authSlice = createSlice({
     setCartProducts: (state, action) => {
       state.cartProducts = action.payload;
     },
-
+    setMyLocation: (state, action) => {
+      const existingIndex = state.myLocations.findIndex(
+        loc => loc.category === action.payload.category,
+      );
+      if (existingIndex !== -1) {
+        state.myLocations[existingIndex] = action.payload;
+      } else {
+        state.myLocations.push(action.payload);
+      }
+    },
+    setLocationAdded: (state, action) => {
+      state.locationAdded = !state?.locationAdded;
+    },
+    setCurrentLocation: (state, action) => {
+      state.currentLocation = action.payload;
+    },
     setTokenAndData: (state, action) => {
       state.token = action.payload.token;
       state.userData = action.payload.userData;
-      state.profileCreated = action.payload.profileCreated;
+      // state.profileCreated = action.payload.profileCreated;
     },
     setClearProducts: (state, action) => {
       state.cartProducts = [];
@@ -75,6 +97,7 @@ const authSlice = createSlice({
       );
     },
     setProfileCreated: (state, action) => {
+      console.log('action.payload',action.payload);
       state.profileCreated = action.payload;
     },
     setAdminId: (state, action) => {
@@ -94,6 +117,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.token = action.payload.accessToken;
         state.userData = action.payload.data;
+        state.currentLocation = {location: action?.payload?.data?.location};
         state.profileCreated = action.payload.data.profileCreted;
       })
       .addCase(UserLogin.rejected, (state, action) => {
@@ -107,6 +131,7 @@ export const {
   clearToken,
   setUserData,
   setToken,
+  setLocationAdded,
   setTokenAndData,
   setProfileCreated,
   setLoading,
@@ -114,6 +139,9 @@ export const {
   setAdminId,
   setCartProducts,
   clearProductById,
+  clearLocation,
+  setMyLocation,
+  setCurrentLocation,
   clearAdminId,
 } = authSlice.actions;
 export default authSlice.reducer;

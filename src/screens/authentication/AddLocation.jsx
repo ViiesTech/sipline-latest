@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Wrapper from '../../utils/Wrapper';
 import AuthLayout from './AuthLayout';
 import {Pera} from '../../utils/Text';
@@ -17,6 +17,7 @@ import {handleLocation} from '../../redux/Actions/AuthActions';
 import DeviceInfo from 'react-native-device-info';
 import {Message} from '../../utils/Alert';
 import {CreateProfile} from '../../GlobalFunctions/Apis';
+import {ShowToast} from '../../GlobalFunctions/ShowToast';
 
 const AddLocation = ({navigation, route}) => {
   const isLocation = route?.params?.locationSelected;
@@ -26,7 +27,6 @@ const AddLocation = ({navigation, route}) => {
     imageName,
     imageUrl,
     name,
-    dob,
     userId,
     gender,
     bio,
@@ -59,7 +59,6 @@ const AddLocation = ({navigation, route}) => {
     'final data',
     finalId,
     name,
-    dob,
     gender,
     bio,
     address,
@@ -116,10 +115,9 @@ const AddLocation = ({navigation, route}) => {
     }
     // dispatch(handleLocation(postalAdd, navigation, route.params?.customerID, deviceInfo));
 
-    await CreateProfile({
+    const response = await CreateProfile({
       userId: finalId,
       name,
-      dob,
       gender,
       lat,
       long: lng,
@@ -130,6 +128,9 @@ const AddLocation = ({navigation, route}) => {
       dispatch,
       navigation,
     });
+    if (response.success) {
+      ShowToast('success', 'Profile Created Successfully');
+    }
     // navigation.navigate('Final', {
     //   title: 'All Set',
     //   msg: 'Welcome to the Sipline',
@@ -144,7 +145,10 @@ const AddLocation = ({navigation, route}) => {
           <Pressable
             onPress={() => {
               if (!route?.params?.locationSelected) {
-                navigation.navigate('Map', {...route.params});
+                navigation.navigate('Map', {
+                  ...route.params,
+                  type: 'AuthStack',
+                });
               }
             }}
             style={{

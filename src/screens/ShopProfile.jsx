@@ -3,7 +3,14 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react/react-in-jsx-scope */
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  ActivityIndicator,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Header from '../components/Header';
 import Background from '../utils/Background';
 import Wrapper from '../utils/Wrapper';
@@ -33,32 +40,31 @@ import {
   getShopById,
 } from '../GlobalFunctions/Apis';
 import {responsiveHeight} from '../utils/Responsive';
-
+import Ionicons from 'react-native-vector-icons/Ionicons';
 const ShopProfile = ({navigation, route}) => {
   const dispatch = useDispatch();
-  const {cartProducts, userData,adminId} = useSelector(state => state?.user);
+  const {cartProducts, userData, token} = useSelector(state => state?.user);
   const [barDetails, setBarDetails] = useState(null);
   const [barProducts, setBarProducts] = useState([]);
   const [categoriesValues, setCategoriesValues] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [isAddToWish, setIsAddToWish] = useState(barDetails?.id);
   const [tab, setTab] = useState('');
-  const {data} = route?.params;
+  const {shopId, adminId} = route?.params;
   const [shopData, setShopData] = useState();
   const today = new Date().getDay();
-  const todayData = data.workingDays[today - 1];
+  const todayData = shopData?.workingDays[today - 1];
   const [latLng, setLatLng] = useState(null);
-  const [favourites, setFavourites] = useState(false);
   const [isFavourite, setIsFavourite] = useState();
-
+  const [favouritesLoading, setFavouritesLoading] = useState(false);
   console.log('today', todayData?.isActive);
-  console.log('barProducts', barProducts);
-  console.log('adminId', adminId);
+  console.log('shopId', shopId);
+  console.log('userData', userData);
   useEffect(() => {
     // dispatch(handleBarProfileDetails(route?.params?.id));
   }, []);
   const getAllProducts = async () => {
-    const response = await getAdminProducts(data.adminId);
+    const response = await getAdminProducts(adminId);
     console.log('responsesssss', response);
     setBarProducts(response.data);
   };
@@ -91,8 +97,8 @@ const ShopProfile = ({navigation, route}) => {
   }, [barDetails]);
   const getShopDetailsById = async () => {
     try {
-      console.log('shopid', data._id);
-      const response = await getShopById(data._id);
+      // console.log('shopid', data._id);
+      const response = await getShopById(shopId);
       console.log('response', response.data);
       setShopData(response.data);
       // Safely extract lat/lng
@@ -137,12 +143,19 @@ const ShopProfile = ({navigation, route}) => {
   };
 
   const handleAddToFavourites = async () => {
-    console.log('userData', userData._id);
-    console.log('shopId', data._id);
-    const response = await addToFavourites(userData._id, data._id);
+    if (!token) {
+      return navigation.navigate('AuthStack');
+    }
+    console.log('userData', userData);
+    // console.log('shopId', data._id);
+    setFavouritesLoading(true);
+    const response = await addToFavourites(userData._id, shopId, 'shop');
     setIsFavourite(!isFavourite);
+    setFavouritesLoading(false);
+
     console.log('addtofavourites', response);
   };
+
   return (
     <>
       <Background>
@@ -164,11 +177,15 @@ const ShopProfile = ({navigation, route}) => {
                     // setIsAddToWish(!isAddToWish);
                     // dispatch(handleAddOrRemoveWishList(barDetails?.bar_id));
                   }}>
-                  <Heart
-                    size={hp('3.5%')}
-                    color={Color('headerIconBg')}
-                    variant={isFavourite ? 'Bold' : 'Outline'}
-                  />
+                  {favouritesLoading ? (
+                    <ActivityIndicator size={25} color={'#3E6F00'} />
+                  ) : (
+                    <Heart
+                      size={hp('3.5%')}
+                      color={Color('headerIconBg')}
+                      variant={isFavourite ? 'Bold' : 'Outline'}
+                    />
+                  )}
                 </TouchableOpacity>
               </Header>
               <Br space={3} />
@@ -322,48 +339,49 @@ const ShopProfile = ({navigation, route}) => {
                   </View>
                 ) : (
                   <>
-                    {barProducts
-                      //   ?.filter(val =>
-                      //     val?.tbl_category?.category_name
-                      //       ?.toLowerCase()
-                      //       .includes(tab),
-                      //   )
-                      .map((item, index) => {
-                        console.log('item===>>>', item);
-                        // const imagPath = item.product_images?.replace(/[\[\]']+/g, '');
-                        return (
-                          <View style={{width: '48%', flexDirection: 'row'}}>
-                            <PopularJuiceCards
-                              style={{
-                                width: wp('45%'),
-                                height: wp('50%'),
-                              }}
-                              key={index}
-                              // imgrUrl={`${baseUrl}/customer/products/${imagPath}`}
-                              imgrUrl={{
-                                uri: `${imageUrl}${item.productImages[0]}`,
-                              }}
-                              name={item?.name}
-                              price={`$ ${item?.price}`}
-                              isVariations={
-                                item?.variants.length === 0 ? false : true
-                              }
-                              isChangePosition={true}
-                              // onPress={() =>
-                              //   navigation.navigate('ProductDetails', {
-                              //     id: item?.id,
-                              //     barId: data?._id,
-                              //   })
-                              // }
-                              onPress={() =>
-                                navigation.navigate('ProductDetails', {
-                                  item: {...item, shopId: data._id},
-                                })
-                              }
-                            />
-                          </View>
-                        );
-                      })}
+                    {barProducts?.map((item, index) => {
+                      console.log('item===>>>', item);
+                      // const imagPath = item.product_images?.replace(/[\[\]']+/g, '');
+                      return (
+                        <View style={{width: '48%', flexDirection: 'row'}}>
+                          <PopularJuiceCards
+                            // onHeartPress={() =>
+                            //   handleAddProductToFavourites(item?._id)
+                            // }
+                            style={{
+                              width: wp('45%'),
+                              height: wp('50%'),
+                            }}
+                            // isLoading={loadingFavId === item?._id}
+                            onFavouriteAdded={getAllProducts}
+                            id={item?._id}
+                            fvrtsBy={item?.favouriteBy}
+                            key={index}
+                            // imgrUrl={`${baseUrl}/customer/products/${imagPath}`}
+                            imgrUrl={{
+                              uri: `${imageUrl}${item.productImages[0]}`,
+                            }}
+                            name={item?.name}
+                            price={`$ ${item?.price}`}
+                            isVariations={
+                              item?.variants.length === 0 ? false : true
+                            }
+                            isChangePosition={true}
+                            // onPress={() =>
+                            //   navigation.navigate('ProductDetails', {
+                            //     id: item?.id,
+                            //     barId: data?._id,
+                            //   })
+                            // }
+                            onPress={() =>
+                              navigation.navigate('ProductDetails', {
+                                item: {...item, shopId: shopId},
+                              })
+                            }
+                          />
+                        </View>
+                      );
+                    })}
                   </>
                 )}
               </View>

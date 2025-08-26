@@ -17,24 +17,29 @@ import NavigationBar from '../components/NavigationBar';
 import ProfileImage from '../components/ProfileImageAvatr';
 import {useSelector} from 'react-redux';
 import {baseUrl, imageUrl} from '../utils/Api_contents';
+import {ShowToast} from '../GlobalFunctions/ShowToast';
 
 const Profile = ({navigation}) => {
-  const {userData} = useSelector(state => state?.user);
-  console.log(userData);
+  const {userData, token} = useSelector(state => state?.user);
+  console.log('userData?.profileImage', userData);
   return (
     <>
       <Background>
         <Wrapper>
           <Header navigation={navigation} onlyTitle title="Profile">
-            <TouchableOpacity
+            {/* <TouchableOpacity
               onPress={() => navigation.navigate('EditProfile')}>
               <Edit size={hp('2.5%')} color={Color('text')} variant="Bold" />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </Header>
           <Br space={4} />
           <ProfileImage
-            onpress={() => navigation.navigate('EditProfile')}
-            imgUrl={`${imageUrl}${userData?.profileImage}`}
+            onpress={() =>
+              token
+                ? navigation.navigate('EditProfile')
+                : navigation.navigate('AuthStack')
+            }
+            imgUrl={userData?.profileImage}
           />
           <Br space={1.5} />
           <H4 style={{textAlign: 'center'}} bold>
@@ -55,7 +60,9 @@ const Profile = ({navigation}) => {
             styling={styles.inputStyle}
             value="My Orders"
             onPress={() => {
-              navigation.navigate('MyOrdersList');
+              token
+                ? navigation.navigate('MyOrdersList')
+                : navigation.navigate('AuthStack');
             }}
             actAsButton
           />
@@ -72,15 +79,35 @@ const Profile = ({navigation}) => {
             inputStyle={{fontSize: wp('4%')}}
             styling={styles.inputStyle}
             value="Payment"
-            onPress={() => navigation.navigate('PaymentMethod')}
+            onPress={() =>
+              token
+                ? navigation.navigate('PaymentMethod')
+                : navigation.navigate('AuthStack')
+            }
             actAsButton
           />
           <Br space={1.2} />
           <Input
             inputStyle={{fontSize: wp('4%')}}
             styling={styles.inputStyle}
-            value="Wishlist"
-            onPress={() => navigation.navigate('WishList')}
+            value="Favorite Bars"
+            onPress={() =>
+              token
+                ? navigation.navigate('WishList', {renderProducts: false})
+                : navigation.navigate('AuthStack')
+            }
+            actAsButton
+          />
+          <Br space={1.2} />
+          <Input
+            inputStyle={{fontSize: wp('4%')}}
+            styling={styles.inputStyle}
+            value="Liked Drinks"
+            onPress={() =>
+              token
+                ? navigation.navigate('WishList', {renderProducts: true})
+                : navigation.navigate('AuthStack')
+            }
             actAsButton
           />
           <Br space={1.2} />
@@ -89,6 +116,18 @@ const Profile = ({navigation}) => {
             styling={styles.inputStyle}
             value="Discount Coupons"
             onPress={() => navigation.navigate('DiscountCoupons')}
+            actAsButton
+          />
+          <Br space={1.2} />
+          <Input
+            inputStyle={{fontSize: wp('4%')}}
+            styling={styles.inputStyle}
+            value="Refund Order"
+            onPress={() =>
+              token
+                ? navigation.navigate('RefundProductSelect')
+                : navigation.navigate('AuthStack')
+            }
             actAsButton
           />
           <Br space={1.2} />
@@ -120,26 +159,51 @@ const Profile = ({navigation}) => {
             inputStyle={{fontSize: wp('4%')}}
             styling={styles.inputStyle}
             value="Contact Support"
-            onPress={() => navigation.navigate('Support')}
+            onPress={() =>
+              token
+                ? navigation.navigate('Support')
+                : navigation.navigate('AuthStack')
+            }
             actAsButton
           />
           <Br space={1.2} />
           <Input
-            onPress={() => {
-              navigation.navigate('Logout');
-            }}
-            value="Logout"
-            actAsButton
-            leftIcon={
-              <ArrowCircleRight2
-                size={wp('7%')}
-                color={Color('text')}
-                variant="Bold"
-              />
-            }
+            inputStyle={{fontSize: wp('4%')}}
             styling={styles.inputStyle}
-            inputStyle={{fontSize: wp('4%'), marginLeft: 2}}
+            value="Delete Account"
+            onPress={() =>
+              token
+                ? navigation.navigate('Logout', {
+                    title: 'Delete Account',
+                    message: 'Are You Sure You Want To Delete Account?',
+                  })
+                : navigation.navigate('AuthStack')
+            }
+            actAsButton
           />
+          <Br space={1.2} />
+          {token ? (
+            <Input
+              onPress={() => {
+                navigation.navigate('Logout', {
+                  title: 'Logout',
+                  message: 'Are You Sure You Want To Logout?',
+                });
+              }}
+              value="Logout"
+              actAsButton
+              leftIcon={
+                <ArrowCircleRight2
+                  size={wp('7%')}
+                  color={Color('text')}
+                  variant="Bold"
+                />
+              }
+              styling={styles.inputStyle}
+              inputStyle={{fontSize: wp('4%'), marginLeft: 2}}
+            />
+          ) : null}
+
           <Br space={13} />
         </Wrapper>
       </Background>

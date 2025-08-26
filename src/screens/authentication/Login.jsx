@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Wrapper from '../../utils/Wrapper';
 import AuthLayout from './AuthLayout';
 import {H4, Pera} from '../../utils/Text';
@@ -21,6 +21,7 @@ import {Message} from '../../utils/Alert';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '../../utils/NavigationContext';
 import {LoginUser} from '../../GlobalFunctions/Apis';
+import {setLoading} from '../../reduxNew/Slices';
 
 const Login = ({navigation}) => {
   const dispatch = useDispatch();
@@ -92,10 +93,23 @@ const Login = ({navigation}) => {
   const handleLogin = async () => {
     getDeviceInfo();
     const checkValidation = isValid();
+    // if (checkValidation) {
+    //   // dispatch(handleSignin(userData, navigation, deviceInfo, saveRememberMeKey));
+    //   const {email, password} = form;
+    //   await LoginUser(email, password, dispatch);
+    // }
     if (checkValidation) {
-      // dispatch(handleSignin(userData, navigation, deviceInfo, saveRememberMeKey));
       const {email, password} = form;
-      await LoginUser(email, password, dispatch);
+
+      try {
+        const response = await LoginUser(email, password, dispatch);
+        if (response?.success) {
+          navigation.navigate('Home');
+        }
+      } catch (err) {
+        console.log('❌ Error in component:', err);
+        // maybe show error toast if needed
+      }
     }
     // nav.navigate('SetProfilePic');
   };

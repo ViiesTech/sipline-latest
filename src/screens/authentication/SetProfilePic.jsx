@@ -14,7 +14,6 @@ import {
 import Br from '../../components/Br';
 import Btn from '../../components/Btn';
 import {Alert, Image, TouchableOpacity, View} from 'react-native';
-import DOB from '../../components/DOB';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {Message} from '../../utils/Alert';
 import {useDispatch, useSelector} from 'react-redux';
@@ -25,18 +24,16 @@ const SetProfilePic = ({navigation, route}) => {
   const loader = useSelector(state => state?.auth?.loadingState);
   const {token, userData} = useSelector(state => state?.user);
   const dispatch = useDispatch();
-  const [dob, setDob] = useState('');
   const [userInfo, setUserInfo] = useState({
     imageName: '',
     imageUrl: '',
     name: '',
     base64Img: '',
   });
-  console.log('dob', dob);
   const id = route?.params?.userId;
   const savedId = useSelector(state => state.user.userData.id);
   const userId = id || savedId;
-  console.log('id',userId);
+  console.log('id', userId);
   const uploadProfileImage = async () => {
     const result = await launchImageLibrary({
       mediaType: 'photo',
@@ -49,7 +46,7 @@ const SetProfilePic = ({navigation, route}) => {
       setUserInfo({
         ...userInfo,
         imageUrl: result.assets[0].uri,
-        base64Img: result.assets[0].base64,
+        // base64Img: result.assets[0].base64,
         imageName: result.assets[0].fileName,
       });
     }
@@ -67,40 +64,40 @@ const SetProfilePic = ({navigation, route}) => {
       setUserInfo({
         ...userInfo,
         imageUrl: result.assets[0].uri,
-        base64Img: result.assets[0].base64,
+        // base64Img: result.assets[0].base64,
         imageName: result.assets[0].fileName,
       });
     }
   };
 
-  const validation = () => {
-    if (validator.isEmpty(userInfo.name)) {
-      Message('First Name is required!', 'Please enter your first name.');
-      return false;
-    }
-    if (
-      !validator.isAlpha(userInfo.name.replace(' ', '')) ||
-      userInfo.name?.length < 3
-    ) {
-      Message(
-        'First Name is not valid!',
-        'Name can only contains letters, minimum 3 letters are required.',
-      );
-      return false;
-    }
-    if (validator.isEmpty(dob)) {
-      Message('DOB is required!', 'Please enter your Date of Birth');
-      return false;
-    }
-    return true;
-  };
+  // const validation = () => {
+  //   if (validator.isEmpty(userInfo.name)) {
+  //     Message('First Name is required!', 'Please enter your first name.');
+  //     return false;
+  //   }
+  //   if (
+  //     !validator.isAlpha(userInfo.name.replace(' ', '')) ||
+  //     userInfo.name?.length < 3
+  //   ) {
+  //     Message(
+  //       'First Name is not valid!',
+  //       'Name can only contains letters, minimum 3 letters are required.',
+  //     );
+  //     return false;
+  //   }
+  //   if (validator.isEmpty(dob)) {
+  //     Message('DOB is required!', 'Please enter your Date of Birth');
+  //     return false;
+  //   }
+  //   return true;
+  // };
 
   const handleSetProfile = () => {
     // const checkValidation = validation();
     // if (checkValidation) {
     //     return dispatch(handleProfile(userInfo, navigation, dob, route.params?.customerID));
     // }
-    navigation.navigate('SelectGender', {...userInfo, dob, userId});
+    navigation.navigate('SelectGender', {...userInfo, userId});
   };
 
   const ProfileImage = () => {
@@ -182,8 +179,6 @@ const SetProfilePic = ({navigation, route}) => {
             }}
             placeholder={'Full Name'}
           />
-          <DOB dob={dob} setDob={setDob} />
-          <Br space={10} />
         </Wrapper>
       </AuthLayout>
       <Btn

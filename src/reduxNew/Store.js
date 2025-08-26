@@ -1,6 +1,6 @@
-import { configureStore } from '@reduxjs/toolkit';
+import {configureStore} from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { persistReducer, persistStore } from 'redux-persist';
+import {persistReducer, persistStore} from 'redux-persist';
 import authReducer from './Slices'; // ✅ Use `authReducer`, not `authSlice`
 
 // Define persist config
@@ -17,7 +17,7 @@ export const store = configureStore({
   reducer: {
     user: persistedReducer,
   },
-  middleware: (getDefaultMiddleware) =>
+  middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
       immutableCheck: false,
       serializableCheck: false,

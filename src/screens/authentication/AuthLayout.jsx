@@ -5,10 +5,11 @@ import Header from '../../components/Header';
 import Wrapper from '../../utils/Wrapper';
 import {Image} from 'react-native';
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import {responsiveHeight, responsiveWidth} from '../../utils/Responsive';
 
 const AuthLayout = ({navigation, children, noHeader}) => {
   return (
-    <Background>
+    <Background noBackground={true}>
       <Wrapper>
         {!noHeader && (
           <Header
@@ -20,10 +21,11 @@ const AuthLayout = ({navigation, children, noHeader}) => {
           />
         )}
         <Image
-          source={require('../../assets/images/logo.png')}
+          source={require('../../assets/images/splashLogo2.png')}
+          resizeMode="contain"
           style={{
-            width: hp('20%'),
-            height: hp('20%'),
+            width: responsiveWidth(65),
+            height: responsiveHeight(17),
             alignSelf: 'center',
           }}
         />

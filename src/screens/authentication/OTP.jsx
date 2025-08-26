@@ -15,6 +15,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {forgetPassword, handleOtpCode} from '../../redux/Actions/AuthActions';
 import {Message} from '../../utils/Alert';
 import {VerifyOtpPassword, VerifyUser} from '../../GlobalFunctions/Apis';
+import {responsiveHeight} from '../../utils/Responsive';
 
 const OTP = ({navigation, route}) => {
   const validator = require('validator');
@@ -48,44 +49,48 @@ const OTP = ({navigation, route}) => {
   };
 
   const resendCode = () => {
-    dispatch(forgetPassword(route.params.email, navigation));
+    // dispatch(forgetPassword(route.params.email, navigation));
   };
 
   return (
     <>
       <AuthLayout navigation={navigation}>
-        <Wrapper>
-          <Br space={3} />
-          <H4 bold style={{textAlign: 'center'}}>
-            OTP
-          </H4>
-          <Pera style={{textAlign: 'center'}}>
-            We have sent you an email containing 4 digits verification code.
-            Please enter the code to verify your identity
-          </Pera>
-          <Br space={3} />
-          <OTPInput inputs={4} onComplete={otp => setOtpCode(otp)} />
-        </Wrapper>
+        <View style={{flex: 1}}>
+          <Wrapper>
+            <Br space={3} />
+            <H4 bold style={{textAlign: 'center'}}>
+              OTP
+            </H4>
+            <Pera style={{textAlign: 'center'}}>
+              We have sent you an email containing 4 digits verification code.
+              Please enter the code to verify your identity
+            </Pera>
+            <Br space={3} />
+            <OTPInput inputs={4} onComplete={otp => setOtpCode(otp)} />
+          </Wrapper>
+          <View style={{marginTop:responsiveHeight(2)}}>
+            <View
+              style={{
+                // position: 'absolute',
+                zIndex: 1,
+                // bottom: hp('3%'),
+                width: wp('88%'),
+                alignSelf: 'center',
+              }}>
+              <Pera style={{textAlign: 'center'}}>Code Didn't received?</Pera>
+              <TouchableOpacity onPress={resendCode}>
+                <H4 style={{textAlign: 'center'}} medium>
+                  Resend Code
+                </H4>
+              </TouchableOpacity>
+              <Br space={5} />
+              <Btn loading={loading} onPress={otpVerification}>
+                Next
+              </Btn>
+            </View>
+          </View>
+        </View>
       </AuthLayout>
-      <View
-        style={{
-          position: 'absolute',
-          zIndex: 1,
-          bottom: hp('3%'),
-          width: wp('88%'),
-          alignSelf: 'center',
-        }}>
-        <Pera style={{textAlign: 'center'}}>Code Didn't received?</Pera>
-        <TouchableOpacity onPress={resendCode}>
-          <H4 style={{textAlign: 'center'}} medium>
-            Resend Code
-          </H4>
-        </TouchableOpacity>
-        <Br space={5} />
-        <Btn loading={loading} onPress={otpVerification}>
-          Next
-        </Btn>
-      </View>
     </>
   );
 };

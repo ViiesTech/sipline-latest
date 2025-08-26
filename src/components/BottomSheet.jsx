@@ -100,7 +100,7 @@ const BottomSheet = ({ isOpenFilters, updateState, children, shouldAlwaysOpen })
                     <SheetContent />
                     :
                     <Modal
-                        animationType={shouldAlwaysOpen ? "none" : "slide"}
+                        animationType={shouldAlwaysOpen ? 'none' : 'slide'}
                         transparent={true}
                         visible={true}
                         onRequestClose={onClose}
