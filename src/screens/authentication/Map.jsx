@@ -49,12 +49,12 @@ const Map = ({navigation, route}) => {
   Geocoder.init(ApiKey);
 
   function getCurrentLocation() {
-    Geolocation.getCurrentPosition(
+    Geolocation?.getCurrentPosition(
       pos => {
-        const crd = pos.coords;
+        const crd = pos?.coords;
         setLocation({
-          latitude: crd.latitude,
-          longitude: crd.longitude,
+          latitude: crd?.latitude,
+          longitude: crd?.longitude,
           latitudeDelta: 0.0421,
           longitudeDelta: 0.0421,
         });
@@ -192,7 +192,7 @@ const Map = ({navigation, route}) => {
           </TouchableOpacity>
           <View style={{flex: 1}}>
             <H5 bold>Street Empire</H5>
-            <Pera style={{}}>{location.address}</Pera>
+            <Pera style={{}}>{location?.address}</Pera>
           </View>
         </View>
         <Br space={4} />
@@ -227,11 +227,11 @@ const Map = ({navigation, route}) => {
     );
   };
   useEffect(() => {
-    if (mapRef.current && location) {
-      mapRef.current.animateToRegion(
+    if (mapRef?.current && location) {
+      mapRef?.current.animateToRegion(
         {
-          latitude: location.latitude,
-          longitude: location.longitude,
+          latitude: location?.latitude,
+          longitude: location?.longitude,
           latitudeDelta: 0.01,
           longitudeDelta: 0.01,
         },

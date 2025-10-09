@@ -49,7 +49,7 @@ const ConfirmLocationModal = ({open, setOpen}) => {
   ];
   console.log('_id', _id);
   const filteredData = data.filter(
-    item => !myLocations.some(location => location.category === item.title),
+    item => !myLocations?.some(location => location?.category === item?.title),
   );
   console.log('filteredData', filteredData);
 
@@ -139,7 +139,7 @@ const ConfirmLocationModal = ({open, setOpen}) => {
             }}>
             {/* {currentLocation?.location?.coordinates ? ( */}
             <MapView
-              mapType="terrain"
+              // mapType="terrain"
               style={{flex: 1}}
               initialRegion={{
                 latitude:
@@ -151,19 +151,21 @@ const ConfirmLocationModal = ({open, setOpen}) => {
                 latitudeDelta: 0.1,
                 longitudeDelta: 0.1,
               }}>
-              <Marker
-                coordinate={{
-                  latitude: currentLocation?.location?.coordinates[1],
-                  longitude: currentLocation?.location?.coordinates[0],
-                }}
-              />
+              {currentLocation?.location?.coordinates.length && (
+                <Marker
+                  coordinate={{
+                    latitude: currentLocation?.location?.coordinates[1],
+                    longitude: currentLocation?.location?.coordinates[0],
+                  }}
+                />
+              )}
             </MapView>
             {/* // ) : (
             //   <Text>Loading Map...</Text> // or show a spinner
             // )} */}
           </View>
         </View>
-        <Br space={myLocations.length ? 3 : 2} />
+        <Br space={myLocations?.length ? 3 : 2} />
 
         <FlatList
           horizontal
@@ -173,13 +175,15 @@ const ConfirmLocationModal = ({open, setOpen}) => {
           renderItem={({item, index}) => (
             <TouchableOpacity
               onPress={() => {
-                navigation.navigate('Map', {
-                  type: 'MainStack',
-                  edit: false,
-                  category: item.title,
-                  locId: null,
-                });
                 setOpen(false);
+                setTimeout(() => {
+                  navigation.navigate('Map', {
+                    type: 'MainStack',
+                    edit: false,
+                    category: item?.title,
+                    locId: null,
+                  });
+                }, 300); // adjust to match your Sheet close animation
               }}
               style={{
                 backgroundColor: '#3F7000',
@@ -202,7 +206,7 @@ const ConfirmLocationModal = ({open, setOpen}) => {
               navigation.navigate('Map', {
                 type: 'MainStack',
                 edit: true,
-                category: area.category,
+                category: area?.category,
                 locId: area?._id,
               });
               setOpen(false);

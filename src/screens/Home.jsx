@@ -89,7 +89,7 @@ const Home = ({navigation, route}) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const focus = useIsFocused();
 
-  console.log('payCreateCustomerId......', payCreateCustomerId);
+  console.log('nearbyShopsData......', nearbyShopsData);
   console.log('longitude......', longitude);
   const [categories, setCategories] = useState([
     {id: 1, category_name: 'Shop'},
@@ -197,8 +197,8 @@ const Home = ({navigation, route}) => {
       Geolocation.getCurrentPosition(
         position => {
           setLatLng({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
+            latitude: position?.coords?.latitude,
+            longitude: position?.coords?.longitude,
           });
         },
         error => {

@@ -58,7 +58,7 @@ const ShopProfile = ({navigation, route}) => {
   const [isFavourite, setIsFavourite] = useState();
   const [favouritesLoading, setFavouritesLoading] = useState(false);
   console.log('today', todayData?.isActive);
-  console.log('shopId', shopId);
+  console.log('adminId', adminId);
   console.log('userData', userData);
   useEffect(() => {
     // dispatch(handleBarProfileDetails(route?.params?.id));

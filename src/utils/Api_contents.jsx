@@ -1,8 +1,8 @@
 import {Message} from './Alert';
 
-export const baseUrl = 'https://appsdemo.pro/Sipline-Backend/api/';
-export const imageUrl = 'https://appsdemo.pro/Sipline-Backend/';
-export const userBaseUrl = 'https://appsdemo.pro/Sipline-Backend/api/user/';
+export const baseUrl = 'https://thesipline.com/Sipline-Backend/api/';
+export const imageUrl = 'https://thesipline.com/Sipline-Backend/';
+export const userBaseUrl = 'https://thesipline.com/Sipline-Backend/api/user/';
 export const ApiKey = 'AIzaSyC6lQeF_RuOImyuymXem2MScGV_qKhSMG4';
 // export const baseUrl = 'http://localhost:3000/api/';
 
