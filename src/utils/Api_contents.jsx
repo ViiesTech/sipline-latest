@@ -1,11 +1,16 @@
 import {Message} from './Alert';
 
-export const baseUrl = 'https://thesipline.com/Sipline-Backend/api/';
-export const imageUrl = 'https://thesipline.com/Sipline-Backend/';
-export const userBaseUrl = 'https://thesipline.com/Sipline-Backend/api/user/';
+export const baseUrl = 'https://apiforapp.link/api/';
+export const imageUrl = 'https://apiforapp.link/';
+export const userBaseUrl = 'https://apiforapp.link/api/user/';
+export const payCreateUrl = 'https://api.paycreategateway.com/api/v2/';
 export const ApiKey = 'AIzaSyC6lQeF_RuOImyuymXem2MScGV_qKhSMG4';
+export const payCreateUserName = '4kMBT0xOoF8Hjxoojqi8vVdh0F7EhKM0';
+export const payCreatePassword = '2211';
 // export const baseUrl = 'http://localhost:3000/api/';
-
+// export const payCreateUserName = 'iLdgQCp96166pl16sAfwQath2wk9I8Xb';
+// export const payCreatePassword = '7766';
+// export const payCreateUrl = 'https://api.sandbox.paycreategateway.com/api/v2/';
 export const endPoints = {
   signUp: 'user/signup',
   profileCreate: 'user/updateUser',

@@ -29,6 +29,7 @@ import {ShowToast} from '../GlobalFunctions/ShowToast';
 const EditProfile = ({navigation}) => {
   const dispatch = useDispatch();
   const userData = useSelector(state => state?.auth?.permission?.allUserData);
+  const {profileImage} = useSelector(state => state?.user.userData);
   const userDetails = useSelector(state => state?.user?.userData);
   const loading = useSelector(state => state?.user?.isLoading);
   const userId = userDetails._id;
@@ -41,7 +42,7 @@ const EditProfile = ({navigation}) => {
     // profile_image: '',
     profile_imageUrl: '',
   });
-  console.log('userDetails', userDetails);
+  console.log('profileImadsdfsge', profileImage);
   const [isLoading, setIsLoading] = useState(false);
   const uploadProfileImage = async () => {
     const result = await launchImageLibrary({
@@ -140,7 +141,11 @@ const EditProfile = ({navigation}) => {
               ],
             );
           }}
-          imgUrl={userData?.profileImage}
+          imgUrl={
+            profile.profile_imageUrl
+              ? profile.profile_imageUrl
+              : `${imageUrl}${profileImage}`
+          }
         />
         <Br space={3} />
         <Pera style={{marginBottom: hp('0.5%'), paddingLeft: wp('1%')}}>

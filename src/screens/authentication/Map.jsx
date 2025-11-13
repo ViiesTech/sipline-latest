@@ -10,6 +10,7 @@ import {
 } from 'react-native-responsive-screen';
 import Br from '../../components/Br';
 import {
+  ActivityIndicator,
   Keyboard,
   PermissionsAndroid,
   Platform,
@@ -21,43 +22,49 @@ import {
 } from 'react-native';
 import {Color} from '../../utils/Colors';
 import MapView, {Marker} from 'react-native-maps';
-import Geolocation from '@react-native-community/geolocation';
+import Geolocation from 'react-native-geolocation-service';
+import Geocoder from 'react-native-geocoding';
 import {ArrowLeft2, Gps, Location} from 'iconsax-react-native';
 import Btn from '../../components/Btn';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import {ApiKey} from '../../utils/Api_contents';
-import Geocoder from 'react-native-geocoding';
 import {useDispatch, useSelector} from 'react-redux';
 import {setLocationAdded, setMyLocation} from '../../reduxNew/Slices';
 import {ShowToast} from '../../GlobalFunctions/ShowToast';
 import {addLocation, editLocation} from '../../GlobalFunctions/Apis';
 
 const Map = ({navigation, route}) => {
+  const {type, category, edit, locId, latitude, longitude, locationName} =
+    route?.params;
   const [location, setLocation] = useState({
-    latitude: 37.78825,
-    longitude: -122.4324,
-    address: null,
+    latitude: latitude || 37.78825,
+    longitude: longitude || -122.4324,
+    address: locationName || null,
   });
   const mapRef = useRef();
   const [isToConfirm, setIsToConfirm] = useState(false);
   const [searchText, setSearchText] = useState('');
   const dispatch = useDispatch();
-  const {type, category, edit, locId} = route?.params;
   const [isLoading, setIsLoading] = useState(false);
-  console.log('category', category);
+  const [locationLoading, setLocationLoading] = useState(false);
+  console.log('latitude', latitude);
+  console.log('longitude', longitude);
   const {_id} = useSelector(state => state.user.userData);
   Geocoder.init(ApiKey);
 
   function getCurrentLocation() {
+    setLocationLoading(true);
     Geolocation?.getCurrentPosition(
       pos => {
         const crd = pos?.coords;
-        setLocation({
-          latitude: crd?.latitude,
-          longitude: crd?.longitude,
-          latitudeDelta: 0.0421,
-          longitudeDelta: 0.0421,
-        });
+        // console.log('crd',crd)
+        // setLocation({
+        //   latitude: crd?.latitude,
+        //   longitude: crd?.longitude,
+        //   latitudeDelta: 0.0421,
+        //   longitudeDelta: 0.0421,
+        // });
+        fetchAddressAndSetLocation(crd?.latitude, crd?.longitude);
       },
       err => {
         console.log(err);
@@ -75,6 +82,7 @@ const Map = ({navigation, route}) => {
           longitude,
           address,
         });
+        setLocationLoading(false);
       })
       .catch(error => console.warn('Geocoding error:', error));
   };
@@ -93,7 +101,9 @@ const Map = ({navigation, route}) => {
           },
         );
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          getCurrentLocation();
+          if (!latitude) {
+            getCurrentLocation();
+          }
         } else {
           console.log('location permission denied');
         }
@@ -102,7 +112,10 @@ const Map = ({navigation, route}) => {
       }
     } else {
       // iOS automatically prompts the first time
-      getCurrentLocation();
+       if (!latitude) {
+            getCurrentLocation();
+          }
+      // getCurrentLocation();
     }
   }
   const editLocationHandler = async () => {
@@ -402,7 +415,11 @@ const Map = ({navigation, route}) => {
             elevation: 5,
           }}
           onPress={() => getCurrentLocation()}>
-          <Gps size="32" color={Color('text')} variant="Bold" />
+          {locationLoading ? (
+            <ActivityIndicator size={30} color={Color('text')} />
+          ) : (
+            <Gps size="32" color={Color('text')} variant="Bold" />
+          )}
         </TouchableOpacity>
         {location?.address && <ConfirmLocation />}
       </Pressable>

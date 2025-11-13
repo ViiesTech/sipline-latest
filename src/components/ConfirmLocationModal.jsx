@@ -47,7 +47,7 @@ const ConfirmLocationModal = ({open, setOpen}) => {
     {id: 3, title: 'Gym'},
     {id: 4, title: 'University'},
   ];
-  console.log('_id', _id);
+  console.log('allLocations', allLocations);
   const filteredData = data.filter(
     item => !myLocations?.some(location => location?.category === item?.title),
   );
@@ -61,8 +61,9 @@ const ConfirmLocationModal = ({open, setOpen}) => {
       const response = await getAllLocations(_id);
       setIsLoading(false);
 
-      console.log('resssponse', response.data);
+      console.log('resssponsedsadsad', response);
       if (!response?.success) {
+        setAllLocations([]);
         return ShowToast('error', response.msg);
       }
       setAllLocations(response.data);
@@ -91,7 +92,7 @@ const ConfirmLocationModal = ({open, setOpen}) => {
 
   return (
     <Sheet open={open} setOpen={setOpen} height={hp('80%')}>
-      <Wrapper x={1}>
+      <Wrapper style={{}} x={1}>
         <Br space={2} />
         <TouchableOpacity
           onPress={() => setOpen(false)}
@@ -135,7 +136,6 @@ const ConfirmLocationModal = ({open, setOpen}) => {
               flex: 1,
               width: '100%',
               borderRadius: responsiveHeight(2),
-              overflow: 'hidden', // very important
             }}>
             {/* {currentLocation?.location?.coordinates ? ( */}
             <MapView
@@ -175,15 +175,19 @@ const ConfirmLocationModal = ({open, setOpen}) => {
           renderItem={({item, index}) => (
             <TouchableOpacity
               onPress={() => {
-                setOpen(false);
-                setTimeout(() => {
-                  navigation.navigate('Map', {
-                    type: 'MainStack',
-                    edit: false,
-                    category: item?.title,
-                    locId: null,
-                  });
-                }, 300); // adjust to match your Sheet close animation
+                if (allLocations?.length < 4) {
+                  setOpen(false);
+                  setTimeout(() => {
+                    navigation.navigate('Map', {
+                      type: 'MainStack',
+                      edit: false,
+                      category: item?.title,
+                      locId: null,
+                    });
+                  }, 300); // adjust to match your Sheet close animation
+                } else {
+                  ShowToast('error', 'Maximum of 4 locations allowed.');
+                }
               }}
               style={{
                 backgroundColor: '#3F7000',
@@ -202,14 +206,34 @@ const ConfirmLocationModal = ({open, setOpen}) => {
             title={area?.location?.title}
             subTitle={area?.location?.locationName}
             handleSelectCategory={() => setLocationId(area?._id)}
+            // handleEditPress={() => {
+            //   setTimeout(() => {
+            //     setOpen(false);
+            //     navigation.navigate('Map', {
+            //       type: 'MainStack',
+            //       edit: true,
+            //       // category: area?.category,
+            //       category: area?.location?.title,
+            //       locId: area?._id,
+            //     });
+            //   }, 300);
+            //   // navigation.navigate('Test')
+            // }}
+
             handleEditPress={() => {
-              navigation.navigate('Map', {
-                type: 'MainStack',
-                edit: true,
-                category: area?.category,
-                locId: area?._id,
-              });
               setOpen(false);
+              setTimeout(() => {
+                navigation.navigate('Map', {
+                  type: 'MainStack',
+                  edit: true,
+                  category: area?.location?.title,
+                  latitude: area?.location?.coordinates[1],
+                  longitude: area?.location?.coordinates[0],
+                  locationName: area?.location?.locationName,
+                  locId: area?._id,
+                });
+              }, 300); // adjust to match your Sheet close animation
+              console.log(area?.location);
             }}
             isChecked={
               locationId

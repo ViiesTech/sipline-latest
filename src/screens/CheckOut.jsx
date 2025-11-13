@@ -32,6 +32,7 @@ import {myCartDummyData} from '../utils/LocalData';
 import {
   createTransaction,
   getPaymentCards,
+  getShopById,
   placeOrder,
 } from '../GlobalFunctions/Apis';
 import moment from 'moment';
@@ -61,7 +62,7 @@ const Checkout = ({navigation, route}) => {
   const formattedDate = moment(date).format('DD-MM-YYYY');
   const [isLoading, setIsLoading] = useState(false);
   console.log('formatted date', formattedDate);
-  console.log('userData', userData);
+  console.log('adminId', adminId);
   const dispatch = useDispatch();
   const [selectedCard, setSelectedCard] = useState(null);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
@@ -70,7 +71,7 @@ const Checkout = ({navigation, route}) => {
   const [bookingLoading, setBookingLoading] = useState(false);
   const refRBSheet = useRef();
   const [allCards, setAllCards] = useState([]);
-  console.log('selectedCard', selectedCard);
+  console.log('route?.params?.coupon', route?.params);
   const focus = useIsFocused();
 
   const getCardsHandler = async () => {
@@ -142,48 +143,65 @@ const Checkout = ({navigation, route}) => {
   console.log('route.params', route.params);
   const {grandTotal, coupon, subTotalAmount} = route?.params;
   const shopId = cartProducts[0]?.shopId;
-  console.log('shopid', shopId);
+  const [shopDetails, setShopDetails] = useState();
+  const today = new Date().getDay();
+  const todayData = shopDetails?.workingDays[today - 1];
+
+  console.log('shopDetails?.workingDays]====', shopDetails);
   const productsForAPI = cartProducts.map(item => ({
     productId: item._id,
     quantity: item.quantity,
   }));
 
-  console.log('productsForAPI:', productsForAPI);
+  console.log('coupon:', coupon);
   const handlePayment = async () => {
-    if (!selectedCard) {
+    const {lastOrder, venueCapacityFull, shopStatus} = shopDetails;
+    if (shopStatus === 'Closed' || !todayData || !todayData?.isActive) {
+      return ShowToast(
+        'error',
+        'Shop is currently closed. Please visit later.',
+      );
+    }
+    if (venueCapacityFull) {
+      return ShowToast('error', 'Venue is full. Please try again later.');
+    }
+    if (lastOrder?.length) {
+      return ShowToast('error', 'No more orders for today. See you tomorrow!');
+    } else if (!selectedCard) {
       return ShowToast(
         'error',
         'Please Select A Payment Method To Proceed Further',
       );
-    }
-    try {
-      setPaymentLoading(true);
-      const response = await createTransaction(
-        grandTotal,
-        'USD',
-        selectedCard.id,
-        'Charge using saved card',
-        userData.payCreateCustomerId,
-        userData.email,
-      );
-      setPaymentLoading(false);
-      if (response.status === 'Approved') {
-        setShowSuccessAnimation(true); // Show animation
-        // Wait for animation to complete before placing order
-        setTimeout(() => {
-          setShowSuccessAnimation(false);
-          handleOrder(response.transaction.id); // call your order function
-        }, 1500); // 3 seconds or match your animation duration
-      } else {
-        return ShowToast('error', response?.error_message);
+    } else {
+      try {
+        setPaymentLoading(true);
+        const response = await createTransaction(
+          grandTotal,
+          'USD',
+          selectedCard.id,
+          'Charge using saved card',
+          userData.payCreateCustomerId,
+          userData.email,
+        );
+        setPaymentLoading(false);
+        if (response.status === 'Approved') {
+          setShowSuccessAnimation(true); // Show animation
+          // Wait for animation to complete before placing order
+          setTimeout(() => {
+            setShowSuccessAnimation(false);
+            handleOrder(response.transaction.id); // call your order function
+          }, 1500); // 3 seconds or match your animation duration
+        } else {
+          return ShowToast('error', response?.error_message);
+        }
+      } catch (error) {
+        setPaymentLoading(false);
+        ShowToast('error', error.response.data);
+        console.log('error', error.response.data);
       }
-    } catch (error) {
-      setPaymentLoading(false);
-      ShowToast('error', error.response.data.error_message);
-      console.log('error', error.response.data.error_message);
     }
   };
-  const handleOrder = async (transactionId) => {
+  const handleOrder = async transactionId => {
     setIsLoading(true);
     const response = await placeOrder(
       userData._id,
@@ -198,12 +216,26 @@ const Checkout = ({navigation, route}) => {
       grandTotal,
       transactionId,
       dispatch,
+      navigation,
     );
     setIsLoading(false);
 
     // navigation.navigate('OrderPreparing', {data: response.data,showOrderCard:false});
-    navigation.navigate('Home');
   };
+
+  const fetchShopDetails = async () => {
+    try {
+      const response = await getShopById(shopId);
+      setShopDetails(response?.data);
+      console.log('responser', response);
+    } catch (error) {
+      console.log('errroro', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchShopDetails();
+  }, []);
   return (
     <Background>
       <Wrapper>
@@ -313,9 +345,10 @@ const Checkout = ({navigation, route}) => {
                 },
                 {
                   label: 'Coupon Code Discount',
-                  value: route?.params?.coupon
-                    ? `${route?.params?.coupon}%`
-                    : '/-',
+                  value:
+                    route?.params?.discountType === 'percentage'
+                      ? `${route?.params?.coupon}%`
+                      : '/-',
                 },
                 {
                   label: 'Sales Tax',

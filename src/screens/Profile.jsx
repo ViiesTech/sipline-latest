@@ -39,7 +39,7 @@ const Profile = ({navigation}) => {
                 ? navigation.navigate('EditProfile')
                 : navigation.navigate('AuthStack')
             }
-            imgUrl={userData?.profileImage}
+            imgUrl={`${imageUrl}${userData?.profileImage}`}
           />
           <Br space={1.5} />
           <H4 style={{textAlign: 'center'}} bold>

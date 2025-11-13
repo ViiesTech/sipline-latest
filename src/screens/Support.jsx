@@ -25,8 +25,9 @@ const SupportMsg = 'Write your message here and tell us your query in details.';
 const Support = ({navigation}) => {
   const validator = require('validator');
   const dispatch = useDispatch();
-  const {isLoading, userData} = useSelector(state => state?.user);
+  const {userData} = useSelector(state => state?.user);
   const [msg, setMsg] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [userDetails, setUserDetails] = useState({
     email: '',
     phone: '',
@@ -42,7 +43,13 @@ const Support = ({navigation}) => {
       return false;
     }
     const {email, name, phone} = userDetails;
-    await addContactSupport(userData._id, name, email, phone, msg, dispatch);
+    setIsLoading(true);
+    try {
+      await addContactSupport(userData._id, name, email, phone, msg, dispatch);
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+    }
   };
 
   return (

@@ -60,7 +60,7 @@ const ProductDetails = ({navigation, route}) => {
     _id,
     variants,
   } = route?.params?.item;
-  console.log('variants', variants);
+  console.log('shopId', shopId);
   const baseProduct = {
     _id, // Important for key & selection logic
     productImages,
@@ -79,7 +79,7 @@ const ProductDetails = ({navigation, route}) => {
     shopId, // ✅ Set shopId from route.params.item
   }));
   const combinedData = [baseProduct, ...enrichedVariants];
-  console.log('productImages', productImages);
+  console.log('combinedData', combinedData);
   const {cartProducts} = useSelector(state => state.user);
   // useEffect(() => {
   //   dispatch(handleProductDetails(route.params.id));
@@ -181,25 +181,36 @@ const ProductDetails = ({navigation, route}) => {
   const handleAddToCart = () => {
     if (!token) {
       // return ShowToast('error', 'Please log in to continue with this action.');
-     return navigation.navigate('AuthStack');
+      return navigation.navigate('AuthStack');
     }
     if (selectedItems.length < 1) {
       return ShowToast('error', 'Please Select a Product To Proceed');
     }
     // Filter out products that already exist in the Redux cart
-    const newItems = selectedItems.filter(
-      selected => !cartProducts.some(cartItem => cartItem._id === selected._id),
-    );
+    // const newItems = selectedItems.filter(
+    //   selected => !cartProducts.some(cartItem => cartItem._id === selected._id),
+    // );
 
+    const newItems = selectedItems
+      .filter(
+        selected =>
+          !cartProducts.some(cartItem => cartItem._id === selected._id),
+      )
+      .map(item => ({
+        ...item,
+        shopId, // ensure shopId is attached
+        quantity: item.quantity || 1, // ensure quantity exists
+      }));
+    console.log('newitems', newItems);
     // Merge existing cart + new unique items
     const updatedCart = [...cartProducts, ...newItems];
-    console.log('selectedItems', selectedItems);
+    console.log('cartProducts', cartProducts);
     // Dispatch merged result
     if (reduxAdminId) {
       if (reduxAdminId !== adminId) {
         return ShowToast(
           'error',
-          'Clear your cart before adding items from another shop.',
+          'Clear your cart to add items from another shop.',
         );
       }
     }

@@ -24,7 +24,8 @@ const ProfileImage = ({onpress, imgUrl}) => {
         source={
           imgUrl
             ? {
-                uri: `${imageUrl}${imgUrl}`,
+                // uri: `${imageUrl}${imgUrl}`,
+                uri: imgUrl,
               }
             : images.userDummy
         }

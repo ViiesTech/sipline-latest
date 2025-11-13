@@ -20,10 +20,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 function App() {
   const { navigationRef } = useNavigation();
-  const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(handleLoginPermissions());
+    // store.dispatch(handleLoginPermissions());
     LogBox.ignoreLogs(['Warning']);
     Orientation.lockToPortrait();
   }, []);
@@ -39,10 +38,11 @@ function App() {
 }
 
 export default function MobileApp() {
-
   return (
     <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
+      <PersistGate onBeforeLift={() => {
+        store.dispatch(handleLoginPermissions()); // now store is ready
+      }} loading={null} persistor={persistor}>
         <NavigationProvider >
           <App />
           <Toast />

@@ -59,7 +59,6 @@ import {setLocationAdded} from '../reduxNew/Slices';
 
 const Home = ({navigation, route}) => {
   const dispatch = useDispatch();
-  const loading = useSelector(state => state.user.isLoading);
   const {token, locationAdded, profileCreated} = useSelector(
     state => state.user,
   );
@@ -68,7 +67,6 @@ const Home = ({navigation, route}) => {
   const homeData = homeDummyData;
   // alert(profileCreated);
   // const [categories, setCategories] = useState([]);
-  const [popularBars, setPopularBars] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [open, setOpen] = useState(false);
   const [latLng, setLatLng] = useState({});
@@ -84,12 +82,10 @@ const Home = ({navigation, route}) => {
     payCreateCustomerId,
   } = useSelector(state => state.user.userData);
   const {location} = useSelector(state => state?.user?.currentLocation);
-  const [shopType, setShopType] = useState('Shop');
   const [featuresData, setFeaturesData] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
-  const focus = useIsFocused();
 
-  console.log('nearbyShopsData......', nearbyShopsData);
+  console.log('payCreateCustomerId......', payCreateCustomerId);
   console.log('longitude......', longitude);
   const [categories, setCategories] = useState([
     {id: 1, category_name: 'Shop'},
@@ -141,6 +137,7 @@ const Home = ({navigation, route}) => {
       phone,
       token,
     );
+    console.log('ressponse', response);
     if (response.status === 201) {
       updateProfile(response.data.id);
     }
@@ -173,10 +170,10 @@ const Home = ({navigation, route}) => {
     }
   }, [featuresData]);
   useEffect(() => {
-    if (!payCreateCustomerId) {
+    if (token && !payCreateCustomerId) {
       createCustomerHandler();
     }
-  }, []);
+  }, [token, payCreateCustomerId]);
   useEffect(() => {
     const requestLocationPermission = async () => {
       if (Platform.OS === 'android') {
@@ -301,7 +298,7 @@ const Home = ({navigation, route}) => {
       coordinates[0],
       dispatch,
     );
-    console.log('resssponsessee.data', response);
+    console.log('resssponsessee.datasa', response);
     setRefreshing(false);
     setNearbyShopData(response.data);
   };
@@ -487,12 +484,13 @@ const Home = ({navigation, route}) => {
                         contentContainerStyle={{
                           paddingBottom: hp('1.5%'),
                           paddingLeft: wp('3%'),
+                          gap: responsiveHeight(2),
                         }}
                         data={nearbyShopsData}
                         showsHorizontalScrollIndicator={false}
                         horizontal
                         renderItem={({item, index}) => {
-                          console.log('item?.adminId', item?.adminId);
+                          console.log('item?.shopimage', item?.shopImage);
                           return (
                             <Pressable
                               onPress={() => {
@@ -502,31 +500,58 @@ const Home = ({navigation, route}) => {
                                 });
                               }}
                               key={index}>
-                              <ImageBackground
-                                // source={{ uri: `${baseUrl}/vendor/bars/${item?.bar_image}` || 'https://lasinfoniavietnam.com/wp-content/uploads/2023/06/Terraco-view-1.jpg' }}
-                                source={{uri: `${imageUrl}${item.shopImage}`}}
-                                style={{
-                                  padding: wp('5%'),
-                                  width: wp('65%'),
-                                  height: hp('35%'),
-                                  marginRight: wp('3%'),
-                                  borderRadius: 10,
-                                  overflow: 'hidden',
-                                  justifyContent: 'flex-end',
-                                }}>
-                                <View>
-                                  <Ratings
-                                    style={{marginBottom: hp('0.5%')}}
-                                    ratings={item?.avgRating}
-                                  />
-                                  <H4
-                                    numberOfLines={1}
-                                    color={Color('headerIcon')}
-                                    bold>
-                                    {item?.barName}
-                                  </H4>
+                              {item?.shopImage ? (
+                                <ImageBackground
+                                  // source={{ uri: `${baseUrl}/vendor/bars/${item?.bar_image}` || 'https://lasinfoniavietnam.com/wp-content/uploads/2023/06/Terraco-view-1.jpg' }}
+                                  source={{
+                                    uri: `${imageUrl}${item?.shopImage}`,
+                                  }}
+                                  style={{
+                                    padding: wp('5%'),
+                                    width: wp('65%'),
+                                    height: hp('35%'),
+                                    borderRadius: 10,
+                                    overflow: 'hidden',
+                                    justifyContent: 'flex-end',
+                                  }}>
+                                  <View>
+                                    <Ratings
+                                      style={{marginBottom: hp('0.5%')}}
+                                      ratings={item?.avgRating}
+                                    />
+                                    <H4
+                                      numberOfLines={1}
+                                      color={Color('headerIcon')}
+                                      bold>
+                                      {item?.barName}
+                                    </H4>
+                                  </View>
+                                </ImageBackground>
+                              ) : (
+                                <View
+                                  style={{
+                                    backgroundColor: '#E0E0E0',
+                                    padding: wp('5%'),
+                                    width: wp('65%'),
+                                    height: hp('35%'),
+                                    borderRadius: 10,
+                                    overflow: 'hidden',
+                                    justifyContent: 'flex-end',
+                                  }}>
+                                  <View>
+                                    <Ratings
+                                      style={{marginBottom: hp('0.5%')}}
+                                      ratings={item?.avgRating}
+                                    />
+                                    <H4
+                                      numberOfLines={1}
+                                      color={Color('headerIcon')}
+                                      bold>
+                                      {item?.barName}
+                                    </H4>
+                                  </View>
                                 </View>
-                              </ImageBackground>
+                              )}
                             </Pressable>
                           );
                         }}

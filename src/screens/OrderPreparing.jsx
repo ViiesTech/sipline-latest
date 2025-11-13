@@ -13,25 +13,36 @@ import {
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
 import {Color} from '../utils/Colors';
-import {FlatList, TouchableOpacity, View} from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {H3, Pera} from '../utils/Text';
 import {Star1} from 'iconsax-react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {handleOrderStatus} from '../redux/Actions/UsersActions';
 import OrderCard from '../components/OrderCard';
 import {imageUrl} from '../utils/Api_contents';
-import {responsiveHeight} from '../utils/Responsive';
+import {responsiveHeight, responsiveWidth} from '../utils/Responsive';
+import moment from 'moment';
+import {updateOrderStatus} from '../GlobalFunctions/Apis';
+import {ShowToast} from '../GlobalFunctions/ShowToast';
 
 const OrderPreparing = ({navigation, route}) => {
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [currentRating, setCurrentRating] = useState(0);
+  const [cancelLoading, setCancelLoading] = useState(false);
   const dispatch = useDispatch();
   const selectedOrderStatus = useSelector(state => state.inApp);
   const shortId = route?.params?.data?._id?.slice(-5);
-  const {data, showOrderCard, status} = route?.params;
-  console.log('route.params', route.params);
-  console.log('shortId', shortId);
+  const {data, showOrderCard, status, createdAt} = route?.params;
+  const {_id, refundApplied} = route?.params?.data;
+  const isCancel = moment().diff(moment(createdAt), 'minutes') <= 5;
+  console.log('route?.params?.data', route?.params?.data);
+  console.log('createdAt', createdAt);
   useEffect(() => {
     loadStatus();
   }, []);
@@ -43,6 +54,29 @@ const OrderPreparing = ({navigation, route}) => {
     dispatch(
       handleOrderStatus(route?.params?.data?.order_id, refresh, setRefreshing),
     );
+  };
+
+  const handleCancelOrder = async () => {
+    setCancelLoading(true);
+    try {
+      const response = await updateOrderStatus(_id);
+      setCancelLoading(false);
+
+      if (response?.success) {
+        ShowToast('success', 'Order Canceled Successfully');
+        navigation.navigate('RefundProduct', {
+          // isPicked: check,
+          orderId: _id,
+        });
+      } else {
+        ShowToast('error', response?.msg);
+      }
+      console.log('responnn', response);
+    } catch (error) {
+      setCancelLoading(false);
+      ShowToast('error', error?.response?.data?.msg);
+      console.log('error', error);
+    }
   };
 
   const handleRatingChange = newRatings => {
@@ -89,6 +123,7 @@ const OrderPreparing = ({navigation, route}) => {
           subTotal={route?.params?.data?.subTotal}
           id={route?.params?.data?._id}
           shortId={route?.params?.data?.shortOrderId || shortId}
+          createdAt={moment(createdAt).format('hh:mm A')}
           //   time={
           //     route?.params?.data?.data
           //       ? route?.params?.data?.data?.tbl_bar?.tbl_cooking_time_range?.to
@@ -125,6 +160,65 @@ const OrderPreparing = ({navigation, route}) => {
               );
             }}
           />
+        ) : null}
+        {/* {!refundApplied ? (
+          <View
+            style={{alignItems: 'center', marginBottom: responsiveHeight(2)}}>
+            <Btn
+              onPress={() => {
+                navigation.navigate('RefundProduct', {
+                  // isPicked: check,
+                  orderId: _id,
+                });
+              }}
+              // onPress={handleCancelOrder}
+              style={{width: responsiveWidth(90)}}>
+              {cancelLoading ? (
+                <ActivityIndicator size={'large'} color="white" />
+              ) : (
+                'Refund Request'
+              )}
+            </Btn>
+          </View>
+        ) : null} */}
+        {createdAt && isCancel && status === 'Pending' ? (
+          <View
+            style={{alignItems: 'center', marginBottom: responsiveHeight(2)}}>
+            <Btn
+              // onPress={() => {
+              //   navigation.navigate('RefundProduct', {
+              //     // isPicked: check,
+              //     orderId: _id,
+              //   });
+              // }}
+              onPress={handleCancelOrder}
+              style={{width: responsiveWidth(90)}}>
+              {cancelLoading ? (
+                <ActivityIndicator size={'large'} color="white" />
+              ) : (
+                'Cancel Order'
+              )}
+            </Btn>
+          </View>
+        ) : !refundApplied && status === 'Canceled' ? (
+          <View
+            style={{alignItems: 'center', marginBottom: responsiveHeight(2)}}>
+            <Btn
+              onPress={() => {
+                navigation.navigate('RefundProduct', {
+                  // isPicked: check,
+                  orderId: _id,
+                });
+              }}
+              // onPress={handleCancelOrder}
+              style={{width: responsiveWidth(90)}}>
+              {cancelLoading ? (
+                <ActivityIndicator size={'large'} color="white" />
+              ) : (
+                'Refund Request'
+              )}
+            </Btn>
+          </View>
         ) : null}
       </Background>
       {/* {(selectedOrderStatus?.orderStatus?.status === 'Picked' || selectedOrderStatus?.orderStatus?.status === 'Delivered') && */}

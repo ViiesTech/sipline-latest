@@ -19,14 +19,14 @@ import {getAllCoupons} from '../GlobalFunctions/Apis';
 import {Pera} from '../utils/Text';
 import {responsiveFontSize, responsiveHeight} from '../utils/Responsive';
 import {setLoading} from '../reduxNew/Slices';
+import {ShowToast} from '../GlobalFunctions/ShowToast';
 
 const DiscountCoupons = ({navigation}) => {
   const dispatch = useDispatch();
-  const {isLoading} = useSelector(state => state?.user);
+  // const {isLoading} = useSelector(state => state?.user);
   const [data, setData] = useState([]);
-  const options = ['Unused', 'Used', 'Expired'];
-  const [selectedValue, setSelectedValue] = useState(options[0].toString());
-
+  const [isLoading, setIsLoading] = useState(false);
+  console.log('dataa', data);
   // const getCouponsData = (value) => {
   //     setSelectedValue(value);
   //     dispatch(handleDiscountCoupon(value || selectedValue));
@@ -38,15 +38,27 @@ const DiscountCoupons = ({navigation}) => {
   //     }
   // }, []);
   const renderAllCoupons = async () => {
-    dispatch(setLoading(true));
-    const response = await getAllCoupons();
-    dispatch(setLoading(false));
-    setData(response.data);
-    console.log('response.data', response.data);
+    setIsLoading(true);
+    try {
+      const response = await getAllCoupons();
+      console.log('response.dadfsta', response)
+      setIsLoading(false);
+      if (response?.success) {
+        setData(response.data);
+      } else {
+        ShowToast('error', response.msg);
+      }
+    } catch (error) {
+      // console.log('error',error.response.data.msg)
+      ShowToast('error', error?.response?.data?.msg);
+      setIsLoading(false);
+    }
   };
   useEffect(() => {
     renderAllCoupons();
   }, []);
+
+
   return (
     <Background>
       <Wrapper>
@@ -67,14 +79,6 @@ const DiscountCoupons = ({navigation}) => {
         }}>
         Long press a coupon to copy its code.
       </Pera>
-      {/* <View style={{ paddingLeft: wp('6%') }}>
-                <SegmentTab
-                    options={options}
-                    selectedVal={selectedValue || options[0]}
-                    // onPress={getCouponsData}
-                />
-            </View>
-            <HorizontalLine /> */}
       <Wrapper>
         {isLoading ? (
           <LoadingAnimation />

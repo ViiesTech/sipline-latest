@@ -90,6 +90,7 @@ const Login = ({navigation}) => {
     return true;
   };
 
+ 
   const handleLogin = async () => {
     getDeviceInfo();
     const checkValidation = isValid();

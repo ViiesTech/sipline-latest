@@ -20,7 +20,7 @@ import {ForgotPass} from '../../GlobalFunctions/Apis';
 const ForgetPassword = ({navigation}) => {
   const validator = require('validator');
   const [mail, setMail] = useState('');
-  const loading = useSelector(state => state.user.isLoading);
+  const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
 
   const handleForgetPassword = async () => {
@@ -34,7 +34,13 @@ const ForgetPassword = ({navigation}) => {
     }
     // dispatch(forgetPassword(mail, navigation));
     console.log('mail', mail);
-    await ForgotPass(mail, dispatch, navigation);
+    setIsLoading(true);
+    try {
+      await ForgotPass(mail, dispatch, navigation);
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -61,7 +67,7 @@ const ForgetPassword = ({navigation}) => {
         </Wrapper>
       </AuthLayout>
       <Btn
-        loading={loading}
+        loading={isLoading}
         onPress={handleForgetPassword}
         style={{
           position: 'absolute',

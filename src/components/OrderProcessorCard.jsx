@@ -12,6 +12,7 @@ import {
 import {Color} from '../utils/Colors';
 import TotalCard from './TotalCard';
 import moment from 'moment';
+import {responsiveHeight} from '../utils/Responsive';
 
 const OrderProcessorCard = ({
   isPickedUp,
@@ -26,6 +27,7 @@ const OrderProcessorCard = ({
   coupon,
   dateTime,
   isBr = true,
+  createdAt,
 }) => {
   const currentDate = dateTime ? new Date(dateTime) : 'none';
   const formatter = new Intl.DateTimeFormat('en-US', {
@@ -40,9 +42,7 @@ const OrderProcessorCard = ({
   return (
     <>
       <Wrapper>
-        {isBr ? (
-          <Br space={4.5} />
-        ) : null}
+        {isBr ? <Br space={4.5} /> : null}
         <View
           style={{
             flexDirection: 'column',
@@ -78,9 +78,19 @@ const OrderProcessorCard = ({
           <H4
             style={{textAlign: 'center'}}
             bold>{` Ordert iD # ${shortId}`}</H4>
-          <Pera color={Color('mapSearchBorder')}>
-            {moment(dateTime, 'DD-MM-YYYY').format('MMMM D, YYYY')}
-          </Pera>
+          <View
+            style={{
+              flexDirection: 'row',
+              gap: responsiveHeight(1),
+              alignItems: 'center',
+            }}>
+            <Pera color={Color('mapSearchBorder')}>
+              {moment(dateTime, 'DD-MM-YYYY').format('MMMM D, YYYY')}
+            </Pera>
+            {createdAt && (
+              <Pera color={Color('mapSearchBorder')}>{createdAt}</Pera>
+            )}
+          </View>
         </View>
         <TotalCard
           beforeTotal={[

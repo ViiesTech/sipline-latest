@@ -15,15 +15,16 @@ import {Color} from '../utils/Colors';
 import {getAllFavourites} from '../GlobalFunctions/Apis';
 import PopularJuiceCards from '../components/PopularJuiceCards';
 import {responsiveHeight, responsiveWidth} from '../utils/Responsive';
+import { ShowToast } from '../GlobalFunctions/ShowToast';
 
 const WishList = ({navigation, route}) => {
   const {renderProducts} = route.params || {};
   const dispatch = useDispatch();
   const [pageIndex, setPageIndex] = useState(1);
   const [moreDataLoader, setMoreDataLoader] = useState(false);
-  const {userData, isLoading} = useSelector(state => state.user);
+  const {userData} = useSelector(state => state.user);
+  const [isLoading,setIsLoading] = useState(false);
   const [data, setData] = useState([]);
-  const [productsData, setProductsData] = useState([]);
   useEffect(() => {
     dispatch(handleWishList(pageIndex));
   }, []);
@@ -42,9 +43,16 @@ const WishList = ({navigation, route}) => {
     }
   };
   const getAllWishList = async () => {
-    const response = await getAllFavourites(userData._id, dispatch);
-    console.log('response===>>>', response);
-    setData(response.data);
+    setIsLoading(true);
+    try {
+      const response = await getAllFavourites(userData._id, dispatch);
+      setIsLoading(false);
+      setData(response.data);
+      console.log('response===>>>', response);
+    } catch (error) {
+      setIsLoading(false);
+      ShowToast('error',error?.response?.data?.msg);
+    }
   };
 
   useEffect(() => {

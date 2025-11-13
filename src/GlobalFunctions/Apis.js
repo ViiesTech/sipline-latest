@@ -1,5 +1,13 @@
 import axios from 'axios';
-import {baseUrl, endPoints, imageUrl, userBaseUrl} from '../utils/Api_contents';
+import {
+  baseUrl,
+  endPoints,
+  imageUrl,
+  payCreatePassword,
+  payCreateUrl,
+  payCreateUserName,
+  userBaseUrl,
+} from '../utils/Api_contents';
 import {ShowToast} from './ShowToast';
 import {
   setClearProducts,
@@ -381,7 +389,7 @@ export const nearbyShops = async (lat, lng, dispatch) => {
   let config = {
     method: 'get',
     maxBodyLength: Infinity,
-    url: `https://appsdemo.pro/Sipline-Backend/api/user/nearbyShops?longitude=${lng}&latitude=${lat}`,
+    url: `${baseUrl}user/nearbyShops?longitude=${lng}&latitude=${lat}`,
     headers: {},
   };
   try {
@@ -461,7 +469,7 @@ export const applyCouponCode = async (couponCode, dispatch) => {
   let config = {
     method: 'get',
     maxBodyLength: Infinity,
-    url: `https://appsdemo.pro/Sipline-Backend/api/user/getcoupon?couponCode=${couponCode}`,
+    url: `${baseUrl}user/getcoupon?couponCode=${couponCode}`,
     // headers: {
     //   'Content-Type': 'application/json',
     // },
@@ -470,13 +478,14 @@ export const applyCouponCode = async (couponCode, dispatch) => {
   };
   try {
     const response = await axios.request(config);
-    console.log('reeessss', response);
+    console.log('reeessssfsd', response);
     dispatch(setLoading(false));
-    if (response.data.success) {
-      ShowToast('success', 'Coupon Applied');
-    } else {
+    if (!response.data.success) {
       ShowToast('error', response.data.msg);
     }
+    // else {
+    //   ShowToast('success', 'Coupon Applied');
+    // }
     return response.data;
   } catch (error) {
     console.log('eeroorr', error.response.data.msg);
@@ -499,8 +508,9 @@ export const placeOrder = async (
   grandTotal,
   transactionId,
   dispatch,
+  navigation,
 ) => {
-  dispatch(setLoading(true));
+  // dispatch(setLoading(true));
   let data = JSON.stringify({
     userId: userId,
     adminId: adminId,
@@ -508,7 +518,7 @@ export const placeOrder = async (
     product: products,
     date: date, //'25-05-2025'
     subTotal: subTotal, //250
-    couponDiscount: couponDiscount, //0
+    couponDiscount: couponDiscount || 0, //0
     salesTax: salesTax, //15
     platFormCharges: platFormCharges, //20
     grandTotal: grandTotal, //285
@@ -524,19 +534,23 @@ export const placeOrder = async (
     },
     data: data,
   };
+  // console.log('data',data);
+  // return
   try {
     const response = await axios.request(config);
-    console.log('response.data', response.data);
-    dispatch(setLoading(false));
+    console.log('response.data===', response.data);
+    // dispatch(setLoading(false));
     if (response.data.success) {
       dispatch(setClearProducts());
       ShowToast('success', response.data.msg);
+      navigation.navigate('Home');
     } else {
       ShowToast('error', response.data.msg);
     }
     return response.data;
   } catch (error) {
-    dispatch(setLoading(false));
+    // dispatch(setLoading(false));
+    console.log('error', error.response.data);
     ShowToast('error', error.response.data.msg);
     throw error;
   }
@@ -556,16 +570,16 @@ export const getAllOrdersByStatus = async (userId, status, dispatch) => {
   try {
     const response = await axios.request(config);
     // dispatch(setLoading(false));
-    if (response.data.success) {
-      console.log('res', response.data.msg);
-      ShowToast(
-        'success',
-        response.data.msg === 'All Orders By UserId!'
-          ? 'All Orders'
-          : response.data.msg,
-      );
-    } else {
+    if (!response.data.success) {
       ShowToast('error', response.data.msg);
+    } else {
+      console.log('res', response.data.msg);
+      // ShowToast(
+      //   'success',
+      //   response.data.msg === 'All Orders By UserId!'
+      //     ? 'All Orders'
+      //     : response.data.msg,
+      // );
     }
     return response.data;
   } catch (error) {
@@ -809,8 +823,8 @@ export const createCustomer = async (
   alternatePhone,
   token,
 ) => {
-  const username = 'iLdgQCp96166pl16sAfwQath2wk9I8Xb';
-  const password = '7766';
+  const username = payCreateUserName;
+  const password = payCreatePassword;
 
   const basicAuthToken = Buffer.from(`${username}:${password}`).toString(
     'base64',
@@ -830,7 +844,7 @@ export const createCustomer = async (
   let config = {
     method: 'post',
     maxBodyLength: Infinity,
-    url: 'https://api.sandbox.paycreategateway.com/api/v2/customers',
+    url: `${payCreateUrl}customers`,
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Basic ${basicAuthToken}`,
@@ -874,8 +888,8 @@ export const addPaymentCard = async (
     expiry_year: expiry_year,
     card: card,
   });
-  const username = 'iLdgQCp96166pl16sAfwQath2wk9I8Xb';
-  const password = '7766';
+  const username = payCreateUserName;
+  const password = payCreatePassword;
 
   const basicAuthToken = Buffer.from(`${username}:${password}`).toString(
     'base64',
@@ -883,7 +897,7 @@ export const addPaymentCard = async (
   let config = {
     method: 'post',
     maxBodyLength: Infinity,
-    url: `https://api.sandbox.paycreategateway.com/api/v2/customers/${customerId}/payment-methods/`,
+    url: `${payCreateUrl}customers/${customerId}/payment-methods/`,
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Basic ${basicAuthToken}`,
@@ -902,8 +916,8 @@ export const addPaymentCard = async (
   }
 };
 export const getPaymentCards = async customerId => {
-  const username = 'iLdgQCp96166pl16sAfwQath2wk9I8Xb';
-  const password = '7766';
+  const username = payCreateUserName;
+  const password = payCreatePassword;
 
   const basicAuthToken = Buffer.from(`${username}:${password}`).toString(
     'base64',
@@ -911,7 +925,7 @@ export const getPaymentCards = async customerId => {
   let config = {
     method: 'get',
     maxBodyLength: Infinity,
-    url: `https://api.sandbox.paycreategateway.com/api/v2/customers/${customerId}/payment-methods/`,
+    url: `${payCreateUrl}customers/${customerId}/payment-methods/`,
     headers: {
       Authorization: `Basic ${basicAuthToken}`,
     },
@@ -943,8 +957,8 @@ export const createTransaction = async (
     },
     capture: true,
   });
-  const username = 'iLdgQCp96166pl16sAfwQath2wk9I8Xb';
-  const password = '7766';
+  const username = payCreateUserName;
+  const password = payCreatePassword;
 
   const basicAuthToken = Buffer.from(`${username}:${password}`).toString(
     'base64',
@@ -952,7 +966,7 @@ export const createTransaction = async (
   let config = {
     method: 'post',
     maxBodyLength: Infinity,
-    url: 'https://api.sandbox.paycreategateway.com/api/v2/transactions/charge',
+    url: `${payCreateUrl}transactions/charge`,
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Basic ${basicAuthToken}`,
@@ -1060,6 +1074,7 @@ export const getAllLocations = async userId => {
   };
   try {
     const response = await axios.request(config);
+    console.log('resopibssaasasase.data', response?.data);
     return response.data;
   } catch (error) {
     throw error;
@@ -1118,6 +1133,21 @@ export const deleteAccount = async userId => {
       'Content-Type': 'application/json',
     },
     data: data,
+  };
+  try {
+    const response = await axios.request(config);
+    return response?.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateOrderStatus = async orderId => {
+  let config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: `${baseUrl}admin/udpateOrderStatus?orderId=${orderId}&status=Canceled`,
+    headers: {},
   };
   try {
     const response = await axios.request(config);

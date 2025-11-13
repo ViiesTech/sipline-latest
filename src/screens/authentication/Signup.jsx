@@ -17,7 +17,6 @@ import Btn from '../../components/Btn';
 import {useDispatch, useSelector} from 'react-redux';
 import {Message} from '../../utils/Alert';
 import {RegisterUser} from '../../GlobalFunctions/Apis';
-import {setLoading} from '../../reduxNew/Slices';
 import DOB from '../../components/DOB';
 const Signup = ({navigation}) => {
   const validator = require('validator');
@@ -29,9 +28,8 @@ const Signup = ({navigation}) => {
     confirmPassword: '',
   });
   const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const loading = useSelector(state => state.user.isLoading);
   const [dob, setDob] = useState('');
-
+  const [loading, setLoading] = useState(false);
   const handleChange = (value, text) => {
     setFormState({
       ...formState,
@@ -89,7 +87,13 @@ const Signup = ({navigation}) => {
     if (checkValidation) {
       const {email, phone, password} = formState;
       console.log(email, phone, password, 'gfhg');
-      await RegisterUser(email, phone, password, dob, navigation, dispatch);
+      setLoading(true);
+      try {
+        await RegisterUser(email, phone, password, dob, navigation, dispatch);
+        setLoading(false);
+      } catch (error) {
+        setLoading(false);
+      }
       //   return dispatch(handleLoading(formState, navigation));
     }
   };

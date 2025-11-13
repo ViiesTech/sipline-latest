@@ -22,15 +22,17 @@ export const UserLogin = createAsyncThunk(
   async (config, {rejectWithValue}) => {
     try {
       const response = await axios.request(config);
-      console.log('response.data', response.data);
+      console.log('response.datafdsfdgdfg', response.data);
       if (response.data.success) {
         ShowToast('success', response.data.msg);
         return response.data;
       } else {
+        // console.log('error', error);
         ShowToast('error', response.data.msg);
         return rejectWithValue('Login failed');
       }
     } catch (error) {
+      console.log('error', error.response.data);
       ShowToast(
         'error',
         error?.response?.data?.message || 'Something went wrong',
@@ -97,7 +99,7 @@ const authSlice = createSlice({
       );
     },
     setProfileCreated: (state, action) => {
-      console.log('action.payload',action.payload);
+      console.log('action.payload', action.payload);
       state.profileCreated = action.payload;
     },
     setAdminId: (state, action) => {

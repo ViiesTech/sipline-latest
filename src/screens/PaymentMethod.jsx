@@ -18,7 +18,7 @@ import {getPaymentCards} from '../GlobalFunctions/Apis';
 import {Pera} from '../utils/Text';
 import {responsiveFontSize, responsiveHeight} from '../utils/Responsive';
 import {ShowToast} from '../GlobalFunctions/ShowToast';
-import { useIsFocused } from '@react-navigation/core';
+import {useIsFocused} from '@react-navigation/core';
 
 const PaymentMethod = ({navigation, route}) => {
   const [loader, setLoader] = useState(false);
@@ -27,7 +27,7 @@ const PaymentMethod = ({navigation, route}) => {
   const getCardsData = myCartDummyData;
   const [isLoading, setIsLoading] = useState(false);
   const [allCards, setAllCards] = useState([]);
-  console.log('allCards', allCards);
+  console.log('payCreateCustomerId', payCreateCustomerId);
   const focus = useIsFocused();
 
   const getCardsHandler = async () => {

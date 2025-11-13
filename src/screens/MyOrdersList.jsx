@@ -19,13 +19,21 @@ import {getAllOrdersByStatus, getOrderHistory} from '../GlobalFunctions/Apis';
 const MyOrdersList = ({navigation}) => {
   const dispatch = useDispatch();
   const orderHistory = useSelector(state => state?.inApp);
-  const {userData, isLoading} = useSelector(state => state?.user);
+  const {userData} = useSelector(state => state?.user);
+  const [isLoading, setIsLoading] = useState(false);
   console.log(userData._id);
   //   const data = !orderHistory?.allOrderHistory?.length
   //     ? orderHistoryDummyData
   //     : orderHistory;
   const [data, setData] = useState([]);
-  const tabData = ['Pending', 'Preparing', 'Picked', 'Delivered', 'Rejected'];
+  const tabData = [
+    'Pending',
+    'Preparing',
+    'Picked',
+    'Delivered',
+    'Rejected',
+    'Canceled',
+  ];
   const [selectedValue, setSelectedValue] = useState(tabData[0].toString());
   // const [data, setData] = useState([]);
   console.log('userData', userData._id);
@@ -37,12 +45,14 @@ const MyOrdersList = ({navigation}) => {
 
   const renderOrderHistory = async () => {
     console.log('selectedvalue', userData._id);
+    setIsLoading(true);
     const response = await getAllOrdersByStatus(
       userData._id,
       selectedValue,
       dispatch,
     );
-    setData(response.data);
+    setIsLoading(false);
+    setData(response?.data?.reverse());
     console.log('response', response);
   };
   useEffect(() => {
@@ -65,7 +75,7 @@ const MyOrdersList = ({navigation}) => {
         />
       </Wrapper>
       <Br space={4} />
-      <View style={{paddingLeft: wp('3%')}}>
+      <View style={{paddingHorizontal: wp('3%')}}>
         <SegmentTab
           options={tabData}
           selectedVal={selectedValue || tabData[0]}
@@ -78,13 +88,13 @@ const MyOrdersList = ({navigation}) => {
         <LoadingAnimation />
       ) : (
         <Wrapper>
-          {data?.length === 0 ? (
+          {data?.length === 0 || !data ? (
             <NoResultFound />
           ) : (
             <>
               {data?.map((item, index) => {
                 // const check = index % 2 === 0 ? true : false;
-                console.log('testing', item.status);
+                console.log('testing', item);
                 const shortOrderId = item?._id?.slice(-5);
                 return (
                   <OrderCard
@@ -101,6 +111,7 @@ const MyOrdersList = ({navigation}) => {
                         data: {...item, shortOrderId},
                         showOrderCard: true,
                         status: item.status,
+                        createdAt: item?.createdAt,
                       })
                     }
                   />

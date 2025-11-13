@@ -39,7 +39,7 @@ const MyCart = ({navigation, route}) => {
   const data = useSelector(state => state?.bars);
   const cartData = !!data?.length ? data : myCartDummyData;
   const {cartProducts, adminId} = useSelector(state => state.user);
-  console.log('adminId===<<>>><<', adminId);
+  console.log('cartProducts===<<>>><<', cartData);
   const [code, setCode] = useState('');
   const [couponDiscount, setCouponDiscount] = useState(0);
   const [subTotal, setSubTotal] = useState();
@@ -47,8 +47,8 @@ const MyCart = ({navigation, route}) => {
   const [grandTotal2, setGrandTotal2] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  console.log('grandTotal', grandTotal);
-  console.log('grandTotal2', grandTotal2);
+  console.log('cartProducts', cartProducts.length);
+  console.log('couponDiscount', couponDiscount);
   //   const subTotalAmount = cartData?.cartItems?.reduce((acc, item) => {
   //     return acc + item.quantity * item.after_price;
   //   }, 0);
@@ -79,35 +79,83 @@ const MyCart = ({navigation, route}) => {
   //     dispatch(handleTotalAmount());
   //   }, []);
 
+  // const applyCode = async () => {
+  //   if (cartProducts[0].adminId !== adminId) {
+  //     return ShowToast('error', 'This coupon is not valid for this shop.');
+  //   }
+  //   if (
+  //     code.length !== 0 &&
+  //     cartData.cartItems &&
+  //     cartData.cartItems?.length > 0
+  //   ) {
+  //     //   return dispatch(handleCoupons(code, cartData.cartItems[0]?.barId));
+  //     setIsLoading(true);
+  //     const response = await applyCouponCode(code, dispatch);
+  //     console.log('coupon code responnnseee', response);
+  //     setIsLoading(false);
+  //     setCouponDiscount(response.data.discountPercent);
+  //     console.log('response', response);
+  //   } else {
+  //     setIsLoading(false);
+
+  //     ToastAndroid.show('Please enter coupon code!', ToastAndroid.SHORT);
+  //   }
+  // };
   const applyCode = async () => {
     if (cartProducts[0].adminId !== adminId) {
       return ShowToast('error', 'This coupon is not valid for this shop.');
     }
+
     if (
       code.length !== 0 &&
       cartData.cartItems &&
       cartData.cartItems?.length > 0
     ) {
-      //   return dispatch(handleCoupons(code, cartData.cartItems[0]?.barId));
       setIsLoading(true);
       const response = await applyCouponCode(code, dispatch);
-      console.log('responnnseee', response);
-      setIsLoading(false);
-      setCouponDiscount(response.data.discountPercent);
-      console.log('response', response);
-    } else {
       setIsLoading(false);
 
+      if (response?.data) {
+        setCouponDiscount(response.data); // store whole object
+        ShowToast('success', 'Coupon applied successfully!');
+      } else {
+        ShowToast('error', 'Invalid coupon code.');
+      }
+    } else {
+      setIsLoading(false);
       ToastAndroid.show('Please enter coupon code!', ToastAndroid.SHORT);
     }
   };
 
-  //   const coupon = cartData?.getCoupons
-  //     ? cartData?.getCoupons?.discount_type === 'fixed'
-  //       ? `$${parseFloat(cartData?.getCoupons?.discount).toFixed(2)}/-`
-  //       : `${cartData?.getCoupons?.discount}%`
-  //     : 0;
+  // useEffect(() => {
+  //   if (cartProducts.length > 0) {
+  //     const total = cartProducts.reduce((acc, item) => {
+  //       const price = Number(item.price) || 0;
+  //       const quantity = Number(item.quantity) || 1;
+  //       return acc + price * quantity;
+  //     }, 0);
 
+  //     setSubTotal(total);
+
+  //     const discountPercent = Number(couponDiscount) || 0;
+  //     const discountAmount = (total * discountPercent) / 100;
+  //     const afterDiscount = total - discountAmount;
+
+  //     setGrandTotal(afterDiscount);
+
+  //     const salesTax = afterDiscount * 0.015;
+  //     const performanceCharge = 0.99;
+
+  //     const finalAmount = afterDiscount + salesTax + performanceCharge;
+  //     setGrandTotal2(finalAmount);
+
+  //     console.log('grandTotal2:', finalAmount);
+  //   } else {
+  //     setSubTotal(0);
+  //     setGrandTotal(0);
+  //     setGrandTotal2(0);
+  //   }
+  // }, [cartProducts, couponDiscount]);
   useEffect(() => {
     if (cartProducts.length > 0) {
       const total = cartProducts.reduce((acc, item) => {
@@ -118,16 +166,31 @@ const MyCart = ({navigation, route}) => {
 
       setSubTotal(total);
 
-      const discountPercent = Number(couponDiscount) || 0;
-      const discountAmount = (total * discountPercent) / 100;
-      const afterDiscount = total - discountAmount;
+      // Extract discount info safely
+      const discountType = couponDiscount?.discountType;
+      const discountValue = Number(couponDiscount?.discountPercent) || 0;
+
+      let afterDiscount = total;
+
+      if (discountType === 'percentage') {
+        // Apply percentage discount
+        const discountAmount = (total * discountValue) / 100;
+        afterDiscount = total - discountAmount;
+      } else if (discountType === 'Fixed') {
+        // Apply fixed amount discount
+        afterDiscount = total - discountValue;
+      }
+
+      // Prevent negative totals
+      if (afterDiscount < 0) afterDiscount = 0;
 
       setGrandTotal(afterDiscount);
 
+      // Add tax + service charge
       const salesTax = afterDiscount * 0.015;
       const performanceCharge = 0.99;
-
       const finalAmount = afterDiscount + salesTax + performanceCharge;
+
       setGrandTotal2(finalAmount);
 
       console.log('grandTotal2:', finalAmount);
@@ -255,9 +318,19 @@ const MyCart = ({navigation, route}) => {
                     value: `$${parseFloat(subTotal).toFixed(2)}/-`,
                   },
                   {label: '', value: '', line: true},
+                  // {
+                  //   label: 'Applied Coupon',
+                  //   value: couponDiscount ? `${couponDiscount}%` : '/-',
+                  // },
                   {
                     label: 'Applied Coupon',
-                    value: couponDiscount ? `${couponDiscount}%` : '/-',
+                    value: couponDiscount
+                      ? couponDiscount.discountType === 'Fixed'
+                        ? `$${parseFloat(
+                            couponDiscount.discountPercent,
+                          ).toFixed(2)}/-`
+                        : `${couponDiscount.discountPercent}%`
+                      : '/-',
                   },
                   {label: '', value: '', line: true},
                   {
@@ -277,8 +350,9 @@ const MyCart = ({navigation, route}) => {
                       barId: 'route?.params?.barId',
                       couponId: 'cartData?.getCoupons?.id',
                       grandTotal: grandTotal2,
-                      coupon: couponDiscount,
+                      coupon: couponDiscount?.discountPercent,
                       subTotalAmount: subTotal,
+                      discountType:couponDiscount?.discountType,
                     });
                   }}
                   style={{width: wp('45%')}}>

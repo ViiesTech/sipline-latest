@@ -39,7 +39,7 @@ import {
   getAdminProducts,
   getShopById,
 } from '../GlobalFunctions/Apis';
-import {responsiveHeight} from '../utils/Responsive';
+import {responsiveFontSize, responsiveHeight} from '../utils/Responsive';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 const ShopProfile = ({navigation, route}) => {
   const dispatch = useDispatch();
@@ -57,9 +57,8 @@ const ShopProfile = ({navigation, route}) => {
   const [latLng, setLatLng] = useState(null);
   const [isFavourite, setIsFavourite] = useState();
   const [favouritesLoading, setFavouritesLoading] = useState(false);
-  console.log('today', todayData?.isActive);
-  console.log('adminId', adminId);
-  console.log('userData', userData);
+  console.log('shopData?.workingDays', shopData?.workingDays);
+  console.log('ttodayData', today);
   useEffect(() => {
     // dispatch(handleBarProfileDetails(route?.params?.id));
   }, []);
@@ -189,14 +188,26 @@ const ShopProfile = ({navigation, route}) => {
                 </TouchableOpacity>
               </Header>
               <Br space={3} />
-              <Image
-                resizeMode="cover"
-                // source={{
-                //     uri:barDetails !== null ? `${baseUrl}/vendor/bars/${barDetails?.bar_image}` :  'https://i.imghippo.com/files/IBOmT1729190109.webp',
-                // }}
-                source={{uri: `${imageUrl}${shopData?.shopImage}`}}
-                style={{width: wp('94%'), height: hp('20%'), borderRadius: 4}}
-              />
+              {shopData?.shopImage ? (
+                <Image
+                  resizeMode="cover"
+                  // source={{
+                  //     uri:barDetails !== null ? `${baseUrl}/vendor/bars/${barDetails?.bar_image}` :  'https://i.imghippo.com/files/IBOmT1729190109.webp',
+                  // }}
+                  source={{uri: `${imageUrl}${shopData?.shopImage}`}}
+                  style={{width: wp('94%'), height: hp('20%'), borderRadius: 4}}
+                />
+              ) : (
+                <View
+                  style={{
+                    backgroundColor: '#E0E0E0',
+                    padding: wp('5%'),
+                    width: '100%',
+                    height: hp('20%'),
+                    borderRadius: 10,
+                  }}
+                />
+              )}
               <View
                 style={{
                   flexDirection: 'row',
@@ -245,13 +256,13 @@ const ShopProfile = ({navigation, route}) => {
                     borderRadius: responsiveHeight(2),
                     overflow: 'hidden', // very important
                   }}>
-                  {latLng ? (
+                  {latLng?.latitude ? (
                     <MapView
                       mapType="terrain"
                       style={{flex: 1}}
                       initialRegion={{
-                        latitude: latLng.latitude,
-                        longitude: latLng.longitude,
+                        latitude: latLng?.latitude,
+                        longitude: latLng?.longitude,
                         latitudeDelta: 0.1,
                         longitudeDelta: 0.1,
                       }}>
@@ -280,35 +291,65 @@ const ShopProfile = ({navigation, route}) => {
                     'text',
                   )}>{` Average Cooking time ${shopData?.cookingTime}`}</Pera>
               </View>
+              {todayData?.isActive && <Br space={2} />}
+
+              {/* <Pera medium color={Color('text')}>{`Opening hours - ${
+                  barDetails?.work_start_time || '00:00'
+                } to ${barDetails?.work_start_time || '00:00'}`}</Pera> */}
+              {todayData &&
+              todayData?.isActive &&
+              todayData?.openingTime &&
+              todayData?.closeingTime ? (
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: wp('2%'),
+                  }}>
+                  <Clock
+                    size={hp('2.5%')}
+                    color={Color('text')}
+                    variant="Outline"
+                  />
+                  <Pera medium color={Color('text')}>
+                    Opening hours - {todayData?.openingTime} AM to{' '}
+                    {todayData.closeingTime} PM
+                  </Pera>
+                </View>
+              ) : // <Pera medium color="red">
+              //   Closed
+              // </Pera>
+              null}
               <Br space={2} />
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: wp('2%'),
-                }}>
-                <Clock
+              {shopData?.shopStatus ? (
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: wp('2%'),
+                  }}>
+                  {/* <Clock
                   size={hp('2.5%')}
                   color={Color('text')}
                   variant="Outline"
-                />
-                {/* <Pera medium color={Color('text')}>{`Opening hours - ${
-                  barDetails?.work_start_time || '00:00'
-                } to ${barDetails?.work_start_time || '00:00'}`}</Pera> */}
-                {todayData &&
-                todayData?.isActive &&
-                todayData?.openingTime &&
-                todayData?.closeingTime ? (
-                  <Pera medium color={Color('text')}>
-                    Opening hours - {todayData.openingTime} AM to{' '}
-                    {todayData.closeingTime} PM
+                /> */}
+                  <Pera
+                    style={{fontSize: responsiveFontSize(2)}}
+                    color={
+                      shopData?.shopStatus === 'Closed' ||
+                      !todayData ||
+                      !todayData?.isActive
+                        ? 'red'
+                        : 'green'
+                    }>
+                    {shopData?.shopStatus === 'Closed' ||
+                    !todayData ||
+                    !todayData?.isActive
+                      ? 'Closed'
+                      : 'Open'}
                   </Pera>
-                ) : (
-                  <Pera medium color="red">
-                    Closed
-                  </Pera>
-                )}
-              </View>
+                </View>
+              ) : null}
             </Wrapper>
             <Br space={3} />
             <View style={{paddingLeft: wp('3%')}}>
@@ -359,12 +400,12 @@ const ShopProfile = ({navigation, route}) => {
                             key={index}
                             // imgrUrl={`${baseUrl}/customer/products/${imagPath}`}
                             imgrUrl={{
-                              uri: `${imageUrl}${item.productImages[0]}`,
+                              uri: `${imageUrl}${item?.productImages[0]}`,
                             }}
                             name={item?.name}
                             price={`$ ${item?.price}`}
                             isVariations={
-                              item?.variants.length === 0 ? false : true
+                              item?.variants?.length === 0 ? false : true
                             }
                             isChangePosition={true}
                             // onPress={() =>

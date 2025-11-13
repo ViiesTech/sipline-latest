@@ -35,6 +35,7 @@ import {AuthStack} from './AuthStack';
 import {useNavigation} from '../utils/NavigationContext';
 import {setProfileCreated} from '../reduxNew/Slices';
 import OTP from '../screens/authentication/OTP';
+import Test from '../screens/Test';
 
 const Stack = createNativeStackNavigator();
 const Sus = ({component}) => {
@@ -42,6 +43,7 @@ const Sus = ({component}) => {
 };
 export function MainStack() {
   const {token, profileCreated} = useSelector(state => state?.user);
+  console.log('token==****=', token);
   console.log('profileCreated==****=', profileCreated);
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -73,6 +75,9 @@ export function MainStack() {
       {/* <Stack.Screen name="OnboardingStack" component={ProfileStack} /> */}
       <Stack.Screen name="OTP">
         {props => <Sus component={<OTP {...props} />} />}
+      </Stack.Screen>
+      <Stack.Screen name="Test">
+        {props => <Sus component={<Test {...props} />} />}
       </Stack.Screen>
       <Stack.Screen name="Terms">
         {props => <Sus component={<Terms {...props} />} />}

@@ -20,8 +20,7 @@ import {responsiveHeight} from '../../utils/Responsive';
 const OTP = ({navigation, route}) => {
   const validator = require('validator');
   const [otpCode, setOtpCode] = useState('');
-  const loading = useSelector(state => state.user.isLoading);
-
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   console.log('otpCode', otpCode);
   console.log('route.params===', route.params);
@@ -41,9 +40,11 @@ const OTP = ({navigation, route}) => {
   const otpVerification = async () => {
     const checkValidations = isValid();
     if (checkValidations) {
+      setLoading(true);
       type === 'forgotPass'
         ? await VerifyOtpPassword(email, otpCode, dispatch, navigation)
         : await VerifyUser(email, otpCode, token, navigation, dispatch);
+      setLoading(false);
       // dispatch(handleOtpCode(otpCode, navigation,route?.params?.customerID));
     }
   };
@@ -68,7 +69,7 @@ const OTP = ({navigation, route}) => {
             <Br space={3} />
             <OTPInput inputs={4} onComplete={otp => setOtpCode(otp)} />
           </Wrapper>
-          <View style={{marginTop:responsiveHeight(2)}}>
+          <View style={{marginTop: responsiveHeight(2)}}>
             <View
               style={{
                 // position: 'absolute',

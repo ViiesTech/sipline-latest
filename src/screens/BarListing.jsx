@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Background from '../utils/Background';
 import Header from '../components/Header';
 import Wrapper from '../utils/Wrapper';
@@ -16,31 +16,24 @@ import {
   FlatList,
   ImageBackground,
   StyleSheet,
-  Text,
-  ToastAndroid,
   TouchableOpacity,
   View,
 } from 'react-native';
 import {H6, Pera} from '../utils/Text';
 import Sheet from '../components/Sheet';
-import LocationSearchBar from '../components/LocationSearchBar';
 import Badge from '../components/Badge';
 import {Color} from '../utils/Colors';
 import {Refresh} from 'iconsax-react-native';
 import Btn from '../components/Btn';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
-
-import {LineChart} from 'react-native-chart-kit';
 import {useDispatch, useSelector} from 'react-redux';
-import {handleBarLists} from '../redux/Actions/BarActions';
 import {baseUrl, imageUrl} from '../utils/Api_contents';
 import {LoadingAnimation} from '../utils/Alert';
 import {barListingDummyData} from '../utils/LocalData';
 import {getAllShops, searchProduct} from '../GlobalFunctions/Apis';
-import {setLoading} from '../reduxNew/Slices';
 import {responsiveHeight, responsiveWidth} from '../utils/Responsive';
-import RangeSlider from 'rn-range-slider';
 import PopularJuiceCards from '../components/PopularJuiceCards';
+import {useIsFocused} from '@react-navigation/core';
 
 const BarListing = ({navigation, route}) => {
   const drinkQuality = [
@@ -86,6 +79,7 @@ const BarListing = ({navigation, route}) => {
   const [selectedRatingsIndex, setSelectedRatingsIndex] = useState(null);
   const [currentRatings, setCurrentRatings] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
+  const focus = useIsFocused();
   console.log('current drink quality', currentDrinkQuality);
   console.log(currentRatings);
 
@@ -133,29 +127,7 @@ const BarListing = ({navigation, route}) => {
       setBarListData(response?.data);
     }
   };
-  // useEffect(() => {
-  //   // if (type !== 'searchShops') {
-  //   handleSearch();
-  //   // }
-  // }, [seacrhedValue]);
-  const loadMoreData = () => {
-    setMoreDataLoader(!moreDataLoader);
-    if (
-      pageIndex < barLists?.barList?.lastPage ||
-      pageIndex === barLists?.barList?.lastPage
-    ) {
-      setPageIndex(pageIndex + 1);
-      dispatch(handleBarLists(pageIndex));
-      setBarListData([...barListData, ...barLists?.barList?.barData]);
-      setMoreDataLoader(!moreDataLoader);
-    } else {
-      ToastAndroid.show(
-        'Whole data has Loaded Successfully!',
-        ToastAndroid.SHORT,
-      );
-      setMoreDataLoader(!moreDataLoader);
-    }
-  };
+
   const renderAllShops = async () => {
     const query = seacrhedValue ? seacrhedValue : '';
     // dispatch(setLoading(true));
@@ -219,7 +191,7 @@ const BarListing = ({navigation, route}) => {
                   paddingHorizontal: responsiveHeight(2),
                 }}
                 data={products}
-                renderItem={({item}) => {
+                renderItem={({item, index}) => {
                   console.log('iiiiitem', item);
                   return (
                     <PopularJuiceCards
@@ -227,7 +199,7 @@ const BarListing = ({navigation, route}) => {
                         flexDirection: 'row',
                         gap: responsiveHeight(2),
                       }}
-                      key={item?._id}
+                      key={item?._id || index.toString()}
                       style={{
                         padding: 0,
                         width: responsiveWidth(38),
