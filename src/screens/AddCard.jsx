@@ -145,6 +145,7 @@ const AddCard = ({navigation}) => {
       );
     } catch (error) {
       console.log('Add Card API Error:', error);
+      console.log(payCreateCustomerId)
       // ShowToast('error', 'Something went wrong while adding the card.');
        ShowToast('error', error?.response?.data?.error_details?.error || error?.response?.data?.error_details?.expiry_year[0]);
     } finally {

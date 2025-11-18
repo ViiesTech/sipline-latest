@@ -13,6 +13,7 @@ import {Color} from '../utils/Colors';
 import TotalCard from './TotalCard';
 import moment from 'moment';
 import {responsiveHeight} from '../utils/Responsive';
+import { imageUrl } from '../utils/Api_contents';
 
 const OrderProcessorCard = ({
   isPickedUp,
@@ -28,6 +29,8 @@ const OrderProcessorCard = ({
   dateTime,
   isBr = true,
   createdAt,
+  shopImage,
+  barName,
 }) => {
   const currentDate = dateTime ? new Date(dateTime) : 'none';
   const formatter = new Intl.DateTimeFormat('en-US', {
@@ -39,6 +42,7 @@ const OrderProcessorCard = ({
     second: '2-digit',
     hour12: true,
   });
+  console.log(shopImage)
   return (
     <>
       <Wrapper>
@@ -67,17 +71,21 @@ const OrderProcessorCard = ({
             </>
           )}
           <Image
-            resizeMode="contain"
-            source={require('../assets/images/chiefImg.png')}
+            resizeMode={shopImage ? 'cover' : "contain"}
+            source={shopImage ? { uri: `${imageUrl}${shopImage}` } : require('../assets/images/chiefImg.png')}
             style={{
               width: hp('20%'),
               height: hp('20%'),
               alignSelf: 'center',
+              borderRadius: shopImage ? hp('10%') : 0,
             }}
           />
-          <H4
+          {/* <H4
             style={{textAlign: 'center'}}
-            bold>{` Ordert iD # ${shortId}`}</H4>
+            bold>{` Order ID #${shortId}`}</H4> */}
+            <H4
+            style={{textAlign: 'center'}}
+            bold>{`${barName}`}</H4>
           <View
             style={{
               flexDirection: 'row',
@@ -101,7 +109,7 @@ const OrderProcessorCard = ({
             {label: 'Sub Total', value: `$ ${subTotal}`},
             {label: 'Coupon Code Discount', value: coupon},
             {label: 'Sales Tax', value: `$ ${salesTax}`},
-            {label: 'Plat Form Charges', value: `$ ${platFormCharges}`},
+            {label: 'Platform Charges', value: `$ ${platFormCharges}`},
             {label: '', value: '', line: true},
             {label: 'Grand Total', value: `$ ${grandTotal}`},
           ]}

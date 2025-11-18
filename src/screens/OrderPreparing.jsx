@@ -123,6 +123,8 @@ const OrderPreparing = ({navigation, route}) => {
           subTotal={route?.params?.data?.subTotal}
           id={route?.params?.data?._id}
           shortId={route?.params?.data?.shortOrderId || shortId}
+          shopImage={route?.params?.data?.shopId?.shopImage}
+          barName={route?.params?.data?.shopId?.barName}
           createdAt={moment(createdAt).format('hh:mm A')}
           //   time={
           //     route?.params?.data?.data

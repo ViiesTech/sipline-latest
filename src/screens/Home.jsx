@@ -373,7 +373,7 @@ const Home = ({navigation, route}) => {
                 />
                 <Br space={3} />
               </Wrapper> */}
-              <AppIntroSlider
+              {/* <AppIntroSlider
                 data={slides}
                 renderItem={renderSlide}
                 onSlideChange={index => setActiveIndex(index)}
@@ -391,7 +391,12 @@ const Home = ({navigation, route}) => {
                     ]}
                   />
                 ))}
-              </View>
+              </View> */}
+              <Image
+                source={require('../assets/images/banner.png')}
+                style={styles.image}
+                resizeMode="cover"
+              />
               {/* <View>
                 <ScrollView
                   style={{flexGrow: 1}}
@@ -657,6 +662,9 @@ const styles = StyleSheet.create({
     width: responsiveWidth(90),
     height: responsiveHeight(24),
     borderRadius: 10,
+    alignSelf: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
   },
   overlay: {
     position: 'absolute',
