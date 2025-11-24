@@ -1,5 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import Background from '../utils/Background';
 import Header from '../components/Header';
 import Wrapper from '../utils/Wrapper';
@@ -10,15 +9,12 @@ import OrderCard from '../components/OrderCard';
 import {View} from 'react-native';
 import {widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {useDispatch, useSelector} from 'react-redux';
-import {handleOrderHistory} from '../redux/Actions/UsersActions';
-import {baseUrl, imageUrl} from '../utils/Api_contents';
+import {imageUrl} from '../utils/Api_contents';
 import {LoadingAnimation, NoResultFound} from '../utils/Alert';
-import {orderHistoryDummyData} from '../utils/LocalData';
-import {getAllOrdersByStatus, getOrderHistory} from '../GlobalFunctions/Apis';
+import {getAllOrdersByStatus} from '../GlobalFunctions/Apis';
 
-const MyOrdersList = ({navigation}) => {
+const MyOrdersList = ({navigation, route}) => {
   const dispatch = useDispatch();
-  const orderHistory = useSelector(state => state?.inApp);
   const {userData} = useSelector(state => state?.user);
   const [isLoading, setIsLoading] = useState(false);
   console.log(userData._id);
@@ -29,6 +25,7 @@ const MyOrdersList = ({navigation}) => {
   const tabData = [
     'Pending',
     'Preparing',
+    'Ready',
     'Picked',
     'Delivered',
     'Rejected',
@@ -43,7 +40,7 @@ const MyOrdersList = ({navigation}) => {
     // dispatch(handleOrderHistory(value || selectedValue));
   };
 
-  const renderOrderHistory = async () => {
+  const renderOrderHistory = useCallback(async () => {
     console.log('selectedvalue', userData._id);
     setIsLoading(true);
     const response = await getAllOrdersByStatus(
@@ -54,16 +51,28 @@ const MyOrdersList = ({navigation}) => {
     setIsLoading(false);
     setData(response?.data?.reverse());
     console.log('response', response);
-  };
+  }, [dispatch, selectedValue, userData._id]);
+
   useEffect(() => {
     renderOrderHistory();
-  }, [selectedValue]);
+  }, [renderOrderHistory, selectedValue]);
+
+  const refreshOrdersRequested = route?.params?.refreshOrders;
+
+  useEffect(() => {
+    if (!refreshOrdersRequested) {
+      return;
+    }
+    renderOrderHistory();
+    navigation.setParams({refreshOrders: false});
+  }, [refreshOrdersRequested, navigation, renderOrderHistory]);
   //   useEffect(() => {
   //     if (!orderHistory?.allOrderHistory?.length) {
   //       getSelectedTabData();
   //     }
   //   }, []);
 
+  console.log('data'  , data);
   return (
     <Background>
       <Wrapper>

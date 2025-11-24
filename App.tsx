@@ -16,6 +16,7 @@ import { persistor, store } from './src/reduxNew/Store';
 import { PersistGate } from 'redux-persist/integration/react';
 import ReturnOrder from './src/screens/ReturnOrder';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { setupNotificationListeners } from './src/GlobalFunctions/NotificationService';
 
 
 function App() {
@@ -25,6 +26,10 @@ function App() {
     // store.dispatch(handleLoginPermissions());
     LogBox.ignoreLogs(['Warning']);
     Orientation.lockToPortrait();
+  }, []);
+
+   useEffect(() => {
+    setupNotificationListeners(); // 👈 single entry
   }, []);
 
   return (

@@ -20,7 +20,7 @@ import {handleSignin} from '../../redux/Actions/AuthActions';
 import {Message} from '../../utils/Alert';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '../../utils/NavigationContext';
-import {LoginUser} from '../../GlobalFunctions/Apis';
+import {getFcmToken, LoginUser} from '../../GlobalFunctions/Apis';
 import {setLoading} from '../../reduxNew/Slices';
 
 const Login = ({navigation}) => {
@@ -32,6 +32,7 @@ const Login = ({navigation}) => {
   const validator = require('validator');
   const [radioCheck, setRadioCheck] = useState(false);
   const [secureEntry, setSecureEntry] = useState(true);
+  const [fcmToken, setFcmToken] = useState('');
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -103,7 +104,7 @@ const Login = ({navigation}) => {
       const {email, password} = form;
 
       try {
-        const response = await LoginUser(email, password, dispatch);
+        const response = await LoginUser(email, password, fcmToken, dispatch);
         if (response?.success) {
           navigation.navigate('Home');
         }
@@ -119,6 +120,21 @@ const Login = ({navigation}) => {
     const jsonValue = JSON.stringify('save');
     await AsyncStorage.setItem('isRemember', jsonValue);
   };
+
+  const fetchAndLogFcmToken = async () => {
+    try {
+      const fcmToken = await getFcmToken();
+      setFcmToken(fcmToken);
+      console.log('FCM Token:', fcmToken);
+    } catch (error) {
+      console.log('Error getting FCM token:', error);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    fetchAndLogFcmToken();
+  }, []);
 
   return (
     <AuthLayout navigation={navigation} noHeader>

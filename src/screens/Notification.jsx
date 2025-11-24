@@ -116,7 +116,7 @@ const Notification = ({navigation}) => {
           ) : (
             <>
               {allNotification?.length > 0 ? (
-                allNotification?.map((item, index) => (
+                allNotification?.reverse().map((item, index) => (
                   <NotificationCard item={item} />
                 ))
               ) : (

@@ -1,16 +1,19 @@
-import React, { createContext, useContext, useRef } from 'react';
+import React, { createContext, createRef, useContext } from 'react';
 
-const NavigationContext = createContext();
+export const navigationRef = createRef();
+
+const NavigationContext = createContext({
+    navigate: () => {},
+    navigationRef,
+});
+
+const navigate = (name, params) => {
+    if (navigationRef.current && name) {
+        navigationRef.current.navigate(name, params);
+    }
+};
 
 export function NavigationProvider({ children }) {
-    const navigationRef = useRef(null);
-
-    const navigate = (name, params) => {
-        if (navigationRef.current) {
-            navigationRef.current.navigate(name, params);
-        }
-    };
-
     return (
         <NavigationContext.Provider value={{ navigate, navigationRef }}>
             {children}

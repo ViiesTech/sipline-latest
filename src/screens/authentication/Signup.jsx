@@ -16,7 +16,7 @@ import {Pressable, View} from 'react-native';
 import Btn from '../../components/Btn';
 import {useDispatch, useSelector} from 'react-redux';
 import {Message} from '../../utils/Alert';
-import {RegisterUser} from '../../GlobalFunctions/Apis';
+import {getFcmToken, RegisterUser} from '../../GlobalFunctions/Apis';
 import DOB from '../../components/DOB';
 const Signup = ({navigation}) => {
   const validator = require('validator');
@@ -36,6 +36,7 @@ const Signup = ({navigation}) => {
       [value]: text,
     });
   };
+  const [fcmToken, setFcmToken] = useState('');
 
   const isValid = () => {
     if (validator.isEmpty(formState?.email)) {
@@ -89,7 +90,7 @@ const Signup = ({navigation}) => {
       console.log(email, phone, password, 'gfhg');
       setLoading(true);
       try {
-        await RegisterUser(email, phone, password, dob, navigation, dispatch);
+        await RegisterUser(email, phone, password, dob, navigation, dispatch, fcmToken);
         setLoading(false);
       } catch (error) {
         setLoading(false);
@@ -97,6 +98,21 @@ const Signup = ({navigation}) => {
       //   return dispatch(handleLoading(formState, navigation));
     }
   };
+
+   const fetchAndLogFcmToken = async () => {
+      try {
+        const fcmToken = await getFcmToken();
+        setFcmToken(fcmToken);
+        console.log('FCM Token:', fcmToken);
+      } catch (error) {
+        console.log('Error getting FCM token:', error);
+        return null;
+      }
+    };
+  
+    useEffect(() => {
+      fetchAndLogFcmToken();
+    }, []);
 
   return (
     <AuthLayout navigation={navigation}>

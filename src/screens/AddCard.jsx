@@ -134,6 +134,14 @@ const AddCard = ({navigation}) => {
     }
     setLoading(true);
     try {
+      console.log(
+        'API Call Params:',
+        card.owner.trim(),
+        expiryDetails?.expiry_month,
+        expiryDetails?.expiry_year,
+        card.card_number.trim(),
+        payCreateCustomerId,
+      )
       await addPaymentCard(
         'string', // Replace with actual user_id or token if needed
         'string', // Replace with actual business_id or any other identifier

@@ -56,6 +56,31 @@ const OrderPreparing = ({navigation, route}) => {
     );
   };
 
+  const headerStatus = selectedOrderStatus?.orderStatus?.status || status;
+
+  const headerTitle = (() => {
+    switch (headerStatus) {
+      case 'New':
+        return 'New Order';
+      case 'Picked':
+        return 'Order Picked';
+      case 'Preparing':
+        return 'Order Preparing';
+      case 'Delivered':
+        return 'Order Delivered';
+      case 'Pending':
+        return 'Order Pending';
+      case 'Ready':
+        return 'Order Ready';
+      case 'Canceled':
+        return 'Order Canceled';
+      case 'Rejected':
+        return 'Order Rejected';
+      default:
+        return headerStatus ? `Order ${headerStatus}` : 'Order Summary';
+    }
+  })();
+
   const handleCancelOrder = async () => {
     setCancelLoading(true);
     try {
@@ -97,17 +122,7 @@ const OrderPreparing = ({navigation, route}) => {
           <Header
             navigation={navigation}
             onlyTitle
-            title={
-              selectedOrderStatus?.orderStatus?.status === 'New'
-                ? 'New Order'
-                : selectedOrderStatus?.orderStatus?.status === 'Picked'
-                ? 'Order Picked'
-                : selectedOrderStatus?.orderStatus?.status === 'Preparing'
-                ? 'Order Preparing'
-                : selectedOrderStatus?.orderStatus?.status === 'Delivered'
-                ? 'Order Delivered'
-                : 'Order Summary'
-            }
+            title={headerTitle}
             withBack
           />
         </Wrapper>

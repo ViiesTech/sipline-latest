@@ -120,7 +120,7 @@ const authSlice = createSlice({
         state.token = action.payload.accessToken;
         state.userData = action.payload.data;
         state.currentLocation = {location: action?.payload?.data?.location};
-        state.profileCreated = action.payload.data.profileCreted;
+        state.profileCreated = action.payload.data.profileCreated;
       })
       .addCase(UserLogin.rejected, (state, action) => {
         state.isLoading = false;

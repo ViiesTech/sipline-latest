@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "413350991118",
+    "project_id": "sipline-585ca",
+    "storage_bucket": "sipline-585ca.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:413350991118:android:6561a56e2056bb05a8335f",
+        "android_client_info": {
+          "package_name": "com.sipline"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDEFC4sZ9mfjPVZ2VZMvgQWdqLumK6N4S8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -8,7 +8,7 @@ import {
   payCreateUserName,
   userBaseUrl,
 } from '../utils/Api_contents';
-import {ShowToast} from './ShowToast';
+import { ShowToast } from './ShowToast';
 import {
   setClearProducts,
   setLoading,
@@ -17,8 +17,28 @@ import {
   setUserData,
   UserLogin,
 } from '../reduxNew/Slices';
-import {Buffer} from 'buffer';
+import { Buffer } from 'buffer';
 import moment from 'moment';
+import messaging from '@react-native-firebase/messaging';
+
+export const getFcmToken = async () => {
+  try {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (enabled) {
+      const fcmToken = await messaging().getToken();
+      return fcmToken;
+      // Alert.alert('FCM Token', fcmToken);
+    } else {
+      console.log('FCM permission not granted');
+    }
+  } catch (error) {
+    console.error('Error getting FCM token:', error);
+  }
+};
 
 export const RegisterUser = async (
   email,
@@ -27,6 +47,7 @@ export const RegisterUser = async (
   dob,
   navigation,
   dispatch,
+  fcmToken,
 ) => {
   try {
     dispatch(setLoading(true));
@@ -36,6 +57,7 @@ export const RegisterUser = async (
       phone: phone,
       password: password,
       DOB: formattedDOB,
+      FCMToken: fcmToken,
     });
     let config = {
       method: 'post',
@@ -117,7 +139,7 @@ export const VerifyUser = async (email, otp, token, navigation, dispatch) => {
       );
 
       // ✅ update profileCreated based on API response
-      dispatch(setProfileCreated(response.data.data.profileCreted));
+      dispatch(setProfileCreated(response.data.data.profileCreated));
 
       // now OnboardingStack will exist in navigator tree
       navigation.navigate('OnBoardingStack', {
@@ -177,10 +199,11 @@ export const VerifyOtpPassword = async (email, otp, dispatch, navigation) => {
     throw error;
   }
 };
-export const LoginUser = async (email, password, dispatch) => {
+export const LoginUser = async (email, password, fcmToken, dispatch) => {
   let data = JSON.stringify({
     email: email.toLowerCase(),
     password: password,
+    FCMToken: fcmToken,
   });
   let config = {
     method: 'post',
@@ -355,7 +378,7 @@ export const CreateProfile = async params => {
     const response = await axios.request(config);
     dispatch(setLoading(false));
     if (response?.data?.success) {
-      dispatch(setProfileCreated(response?.data?.data?.profileCreted));
+      dispatch(setProfileCreated(response?.data?.data?.profileCreated));
       dispatch(setUserData(response.data.data));
     }
     // ShowToast('success', response.data.msg);
@@ -558,9 +581,8 @@ export const placeOrder = async (
 
 export const getAllOrdersByStatus = async (userId, status, dispatch) => {
   // dispatch(setLoading(true));
-  const url = `${baseUrl}${endPoints.orderStatus}?userId=${userId}${
-    status ? `&status=${status}` : ''
-  }`;
+  const url = `${baseUrl}${endPoints.orderStatus}?userId=${userId}${status ? `&status=${status}` : ''
+    }`;
   let config = {
     method: 'get',
     maxBodyLength: Infinity,
@@ -652,7 +674,7 @@ export const addReview = async (
   }
 };
 export const addToFavourites = async (userId, id, type) => {
-  let payload = {userId};
+  let payload = { userId };
 
   if (type === 'shop') {
     payload.shopId = id;
@@ -973,6 +995,8 @@ export const createTransaction = async (
     },
     data: data,
   };
+
+  console.log('config', config);
 
   try {
     const response = await axios.request(config);
