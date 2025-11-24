@@ -174,6 +174,38 @@ const Home = ({navigation, route}) => {
       createCustomerHandler();
     }
   }, [token, payCreateCustomerId]);
+
+    useEffect(() => {
+      const requestNotificationPermission = async () => {
+        if (Platform.OS !== 'android' || Platform.Version < 33) {
+          return; // POST_NOTIFICATIONS applies to Android 13+
+        }
+
+        try {
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+            {
+              title: 'Notification Permission',
+              message:
+                'This app needs notification permission to send you updates.',
+              buttonNeutral: 'Ask Me Later',
+              buttonNegative: 'Cancel',
+              buttonPositive: 'OK',
+            },
+          );
+
+          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+            console.log('Notification permission granted');
+          } else {
+            console.log('Notification permission denied');
+          }
+        } catch (error) {
+          console.log('Notification permission error:', error?.message || error);
+        }
+      };
+
+      requestNotificationPermission();
+    }, []);
   useEffect(() => {
     const requestLocationPermission = async () => {
       if (Platform.OS === 'android') {
@@ -217,6 +249,7 @@ const Home = ({navigation, route}) => {
   //     setCategories(homeData?.homeData?.category);
   //   }
   // }, [homeData]);
+  // eslint-disable-next-line no-unused-vars
   const renderSlide = ({item}) => {
     console.log('itemmmdsdhsjf', item);
     return (

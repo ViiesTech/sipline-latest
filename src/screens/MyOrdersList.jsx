@@ -6,12 +6,34 @@ import Br from '../components/Br';
 import SegmentTab from '../components/SegmentTab';
 import HorizontalLine from '../utils/HorizontalLine';
 import OrderCard from '../components/OrderCard';
-import {View} from 'react-native';
+import {DeviceEventEmitter, View} from 'react-native';
 import {widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {useDispatch, useSelector} from 'react-redux';
 import {imageUrl} from '../utils/Api_contents';
 import {LoadingAnimation, NoResultFound} from '../utils/Alert';
 import {getAllOrdersByStatus} from '../GlobalFunctions/Apis';
+import {ORDER_HISTORY_REFRESH_EVENT} from '../utils/NotificationEvents';
+
+const ORDER_TABS = [
+  'Pending',
+  'Preparing',
+  'Ready',
+  'Picked',
+  'Delivered',
+  'Rejected',
+  'Canceled',
+];
+
+const normalizeStatusToTab = status => {
+  if (!status || typeof status !== 'string') {
+    return null;
+  }
+  const lower = status.toLowerCase();
+  if (lower === 'cancelled') {
+    return 'Canceled';
+  }
+  return ORDER_TABS.find(tab => tab.toLowerCase() === lower) || null;
+};
 
 const MyOrdersList = ({navigation, route}) => {
   const dispatch = useDispatch();
@@ -22,16 +44,7 @@ const MyOrdersList = ({navigation, route}) => {
   //     ? orderHistoryDummyData
   //     : orderHistory;
   const [data, setData] = useState([]);
-  const tabData = [
-    'Pending',
-    'Preparing',
-    'Ready',
-    'Picked',
-    'Delivered',
-    'Rejected',
-    'Canceled',
-  ];
-  const [selectedValue, setSelectedValue] = useState(tabData[0].toString());
+  const [selectedValue, setSelectedValue] = useState(ORDER_TABS[0]);
   // const [data, setData] = useState([]);
   console.log('userData', userData._id);
   console.log('selectedValue', selectedValue);
@@ -40,32 +53,64 @@ const MyOrdersList = ({navigation, route}) => {
     // dispatch(handleOrderHistory(value || selectedValue));
   };
 
-  const renderOrderHistory = useCallback(async () => {
-    console.log('selectedvalue', userData._id);
-    setIsLoading(true);
-    const response = await getAllOrdersByStatus(
-      userData._id,
-      selectedValue,
-      dispatch,
-    );
-    setIsLoading(false);
-    setData(response?.data?.reverse());
-    console.log('response', response);
-  }, [dispatch, selectedValue, userData._id]);
+  const fetchOrdersByStatus = useCallback(
+    async statusOverride => {
+      const statusToFetch = statusOverride || selectedValue;
+      console.log('selectedvalue', userData._id);
+      setIsLoading(true);
+      const response = await getAllOrdersByStatus(
+        userData._id,
+        statusToFetch,
+        dispatch,
+      );
+      setIsLoading(false);
+      setData(response?.data?.reverse());
+      console.log('response', response);
+    },
+    [dispatch, selectedValue, userData._id],
+  );
 
   useEffect(() => {
-    renderOrderHistory();
-  }, [renderOrderHistory, selectedValue]);
+    fetchOrdersByStatus(selectedValue);
+  }, [fetchOrdersByStatus, selectedValue]);
 
   const refreshOrdersRequested = route?.params?.refreshOrders;
+  const targetStatus = route?.params?.targetStatus;
 
   useEffect(() => {
     if (!refreshOrdersRequested) {
       return;
     }
-    renderOrderHistory();
-    navigation.setParams({refreshOrders: false});
-  }, [refreshOrdersRequested, navigation, renderOrderHistory]);
+    const normalizedStatus = normalizeStatusToTab(targetStatus);
+    if (normalizedStatus && normalizedStatus !== selectedValue) {
+      setSelectedValue(normalizedStatus);
+    } else {
+      fetchOrdersByStatus(normalizedStatus || selectedValue);
+    }
+    navigation.setParams({refreshOrders: false, targetStatus: undefined});
+  }, [
+    refreshOrdersRequested,
+    targetStatus,
+    navigation,
+    fetchOrdersByStatus,
+    selectedValue,
+  ]);
+
+  useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener(
+      ORDER_HISTORY_REFRESH_EVENT,
+      payload => {
+        const normalizedStatus = normalizeStatusToTab(payload?.status);
+        if (normalizedStatus && normalizedStatus !== selectedValue) {
+          setSelectedValue(normalizedStatus);
+          return;
+        }
+        fetchOrdersByStatus(normalizedStatus || selectedValue);
+      },
+    );
+
+    return () => subscription.remove();
+  }, [fetchOrdersByStatus, selectedValue]);
   //   useEffect(() => {
   //     if (!orderHistory?.allOrderHistory?.length) {
   //       getSelectedTabData();
@@ -79,15 +124,15 @@ const MyOrdersList = ({navigation, route}) => {
         <Header
           navigation={navigation}
           withBack
-          title="Order History"
+          title="Orders"
           onlyTitle
         />
       </Wrapper>
       <Br space={4} />
       <View style={{paddingHorizontal: wp('3%')}}>
         <SegmentTab
-          options={tabData}
-          selectedVal={selectedValue || tabData[0]}
+          options={ORDER_TABS}
+          selectedVal={selectedValue || ORDER_TABS[0]}
           onPress={getSelectedTabData}
         />
       </View>

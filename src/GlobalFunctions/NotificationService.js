@@ -1,6 +1,7 @@
 import messaging from '@react-native-firebase/messaging';
 import notifee, { AndroidImportance, EventType } from '@notifee/react-native';
 import { navigateToMainStackRoute } from './notificationNavigation';
+import { emitOrderHistoryRefresh } from '../utils/NotificationEvents';
 import { getOrderByOrderId } from './Apis';
 
 const CHANNEL_ID = 'sipline_default_channel';
@@ -73,6 +74,7 @@ export async function setupNotificationListeners() {
   const unsubscribeOnMessage = messaging().onMessage(async remoteMessage => {
     console.log('📩 Foreground FCM Message:', remoteMessage?.messageId);
     await displayNotification(remoteMessage);
+    maybeTriggerOrderHistoryRefresh(remoteMessage?.data);
   });
 
   const unsubscribeOnNotificationOpened =
@@ -116,6 +118,14 @@ function registerNotifeeEventHandlers() {
   notifeeListenersRegistered = true;
 }
 
+function maybeTriggerOrderHistoryRefresh(data = {}, params) {
+  const orderId = getOrderIdFromPayload(data, params);
+  const status = getOrderStatusFromPayload(data, params);
+  if (orderId || data?.refreshOrders === 'true') {
+    emitOrderHistoryRefresh({orderId, status});
+  }
+}
+
 async function handleNotificationNavigation(payload) {
   if (!payload) {
     return;
@@ -131,8 +141,9 @@ async function handleNotificationNavigation(payload) {
 async function processNotificationNavigation(payload) {
   const data = payload?.data ?? payload?.notification?.data ?? {};
   const params = parseParams(data?.params);
-  const orderId =
-    data?.orderId || data?.order_id || params?.orderId || params?._id;
+  const orderId = getOrderIdFromPayload(data, params);
+  const status = getOrderStatusFromPayload(data, params);
+  maybeTriggerOrderHistoryRefresh(data, params);
 
   let destination = data?.screen;
   if (!destination && orderId) {
@@ -147,13 +158,18 @@ async function processNotificationNavigation(payload) {
       return;
     }
     console.log('ℹ️ Falling back to Order History due to missing order data');
-    navigateToMainStackRoute('MyOrdersList', {refreshOrders: true});
+    navigateToMainStackRoute('MyOrdersList', {
+      refreshOrders: true,
+      targetStatus: status,
+    });
     return;
   }
 
   const mergedParams = {
     ...(params ?? {}),
-    ...(destination === 'MyOrdersList' ? {refreshOrders: true} : {}),
+    ...(destination === 'MyOrdersList'
+      ? {refreshOrders: true, targetStatus: status}
+      : {}),
   };
 
   navigateToMainStackRoute(destination, mergedParams);
@@ -209,4 +225,19 @@ function safeParse(value) {
   } catch (error) {
     return undefined;
   }
+}
+
+function getOrderIdFromPayload(data = {}, params = {}) {
+  return data?.orderId || data?.order_id || params?.orderId || params?._id;
+}
+
+function getOrderStatusFromPayload(data = {}, params = {}) {
+  return (
+    data?.status ||
+    data?.orderStatus ||
+    data?.order_status ||
+    params?.status ||
+    params?.orderStatus ||
+    params?.order_status
+  );
 }

@@ -4,12 +4,12 @@ export const baseUrl = 'https://apiforapp.link/api/';
 export const imageUrl = 'https://apiforapp.link/';
 export const userBaseUrl = 'https://apiforapp.link/api/user/';
 export const ApiKey = 'AIzaSyC6lQeF_RuOImyuymXem2MScGV_qKhSMG4';
-// export const payCreateUrl = 'https://api.paycreategateway.com/api/v2/';
-// export const payCreateUserName = '4kMBT0xOoF8Hjxoojqi8vVdh0F7EhKM0';
-// export const payCreatePassword = '2211';
-export const payCreateUserName = 'iLdgQCp96166pl16sAfwQath2wk9I8Xb';
-export const payCreatePassword = '7766';
-export const payCreateUrl = 'https://api.sandbox.paycreategateway.com/api/v2/';
+export const payCreateUrl = 'https://api.paycreategateway.com/api/v2/';
+export const payCreateUserName = '4kMBT0xOoF8Hjxoojqi8vVdh0F7EhKM0';
+export const payCreatePassword = '2211';
+// export const payCreateUserName = 'iLdgQCp96166pl16sAfwQath2wk9I8Xb';
+// export const payCreatePassword = '7766';
+// export const payCreateUrl = 'https://api.sandbox.paycreategateway.com/api/v2/';
 export const endPoints = {
   signUp: 'user/signup',
   profileCreate: 'user/updateUser',
